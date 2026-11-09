@@ -30,15 +30,16 @@ create table if not exists public.veicoli (
 -- 2) Row Level Security: nessuno accede ai dati senza autorizzazione
 alter table public.veicoli enable row level security;
 
--- 3) Policy: SOLO il proprietario (il tuo indirizzo email) può
---    leggere e scrivere. Per aggiungere un collega, cambia la riga
---    sotto in:  auth.jwt()->>'email' in ('tua@mail.it','collega@mail.it')
+-- 3) Policy: accesso ai dati solo per gli utenti autenticati.
+--    L'accesso al sito avviene con un PIN, che è la password di un unico
+--    utente creato in Authentication. Chi non conosce il PIN non si
+--    autentica, quindi non legge e non scrive nulla.
 drop policy if exists "registro_owner" on public.veicoli;
 create policy "registro_owner" on public.veicoli
   for all
   to authenticated
-  using      ( auth.jwt()->>'email' = 'omniscent.finance@gmail.com' )
-  with check ( auth.jwt()->>'email' = 'omniscent.finance@gmail.com' );
+  using      ( true )
+  with check ( true );
 
 -- 4) Sincronizzazione in tempo reale tra i tuoi dispositivi
 alter publication supabase_realtime add table public.veicoli;
