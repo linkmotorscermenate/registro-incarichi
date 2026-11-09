@@ -768,7 +768,9 @@ document.addEventListener('keydown',e=>{
 });
 
 (function init(){
-  const url=window.SUPABASE_URL, key=window.SUPABASE_ANON_KEY;
+  let url=window.SUPABASE_URL, key=window.SUPABASE_ANON_KEY;
+  // Normalizza: tieni solo l'origine (toglie /rest/v1/, percorsi e slash finali)
+  if(url){ try{ url=new URL(url).origin; }catch(_){ url=String(url).replace(/\/(rest|auth|realtime|storage)\/.*$/,'').replace(/\/+$/,''); } }
   if(!url || !key || url.indexOf('INCOLLA')===0){
     showLogin('Configura config.js con i dati del tuo progetto Supabase.','err'); return;
   }
