@@ -746,7 +746,15 @@ async function submitPin(){
     if(error) throw error; // successo: ci pensa onAuthStateChange
   }catch(err){
     m.className='login-msg err';
-    m.textContent=(err && err.message && /rate|many|limit/i.test(err.message)) ? 'Troppi tentativi, riprova tra poco' : 'PIN errato';
+    const raw=(err && err.message) ? err.message : '';
+    let msg='PIN errato';
+    if(/rate|many|limit/i.test(raw)) msg='Troppi tentativi, riprova tra poco';
+    else if(/not confirmed|confirm/i.test(raw)) msg='Utente non confermato su Supabase';
+    else if(/invalid login|invalid credentials/i.test(raw)) msg='Utente o PIN non corrispondono';
+    else if(/disabled|not enabled|provider/i.test(raw)) msg='Login email/password disattivato su Supabase';
+    else if(/fetch|network|failed to/i.test(raw)) msg='Connessione a Supabase non riuscita';
+    else if(raw) msg=raw;
+    m.textContent=msg;
     pin=''; renderDots();
     const c=$('loginCard'); c.classList.add('shake'); setTimeout(()=>c.classList.remove('shake'),400);
   }
