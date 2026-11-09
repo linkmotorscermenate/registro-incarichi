@@ -8,5 +8,5 @@
 //  NON mettere qui la chiave "service_role".
 // ============================================================
 
-window.SUPABASE_URL      = "INCOLLA_QUI_IL_PROJECT_URL";
-window.SUPABASE_ANON_KEY = "INCOLLA_QUI_LA_ANON_KEY";
+window.SUPABASE_URL      = "https://vmedrumpmpcjaaomvbgf.supabase.co/rest/v1/";
+window.SUPABASE_ANON_KEY = "sb_publishable_ayLyC9ubVSAe90anA21PqA_29KIfuHH";
