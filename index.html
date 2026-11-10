@@ -428,22 +428,12 @@ tfoot .gross{color:var(--accent)}
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11"/><path d="M3 11h18v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="14" r="1"/><circle cx="17" cy="14" r="1"/></svg>
     </div>
     <h2>Registro Incarichi</h2>
-    <p>Inserisci il PIN per accedere.</p>
-    <div class="pin-dots" id="pinDots"></div>
-    <div class="pin-pad" id="pinPad">
-      <button type="button" data-k="1">1</button>
-      <button type="button" data-k="2">2</button>
-      <button type="button" data-k="3">3</button>
-      <button type="button" data-k="4">4</button>
-      <button type="button" data-k="5">5</button>
-      <button type="button" data-k="6">6</button>
-      <button type="button" data-k="7">7</button>
-      <button type="button" data-k="8">8</button>
-      <button type="button" data-k="9">9</button>
-      <button type="button" data-k="back" class="back" aria-label="Cancella">&#9003;</button>
-      <button type="button" data-k="0">0</button>
-      <button type="button" data-k="ok" class="ok" aria-label="Conferma">&#10003;</button>
-    </div>
+    <p>Accedi con email e password.</p>
+    <form id="loginForm" autocomplete="on">
+      <input type="email" id="loginEmail" placeholder="Email" autocomplete="username" required>
+      <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn">Accedi</button>
+    </form>
     <div class="login-msg" id="loginMsg"></div>
     <div class="login-foot">Infinity Contract · accesso riservato</div>
   </div>
@@ -480,7 +470,6 @@ function ribassoBtn(id){ return `<button class="ribasso" data-ribasso="${id}" ti
 function statusCell(st,rb,id){ return `<div class="stwrap">${statusPill(st)}${rb?ribassoBtn(id):''}</div>`; }
 
 let sb=null, items=[], editId=null, canWrite=false, loaded=false, rtChannel=null;
-const LOGIN_EMAIL = (window.LOGIN_EMAIL || 'linkmotorscermenate@gmail.com');
 const state={ type:'all', q:'', sort:'scad', status:'all' };
 const $=id=>document.getElementById(id);
 
@@ -725,47 +714,32 @@ async function onSignedIn(){
 function onSignedOut(){ canWrite=false; items=[]; if(rtChannel){ try{sb.removeChannel(rtChannel);}catch(e){} rtChannel=null; }
   showLogin('','' ); }
 
-/* ---- login con PIN ---- */
-let pin='';
-function renderDots(){ const d=$('pinDots'); d.innerHTML='';
-  const n=Math.min(pin.length,10);
-  for(let i=0;i<n;i++){ const s=document.createElement('i'); d.appendChild(s); } }
-function pinPress(k){
-  const m=$('loginMsg');
-  if(k==='back'){ pin=pin.slice(0,-1); m.textContent=''; renderDots(); return; }
-  if(k==='ok'){ submitPin(); return; }
-  if(/^[0-9]$/.test(k) && pin.length<12){ pin+=k; m.textContent=''; renderDots(); }
-}
-async function submitPin(){
+/* ---- login con email + password ---- */
+async function submitLogin(){
   if(!sb) return;
-  const m=$('loginMsg');
-  if(pin.length<4){ m.className='login-msg err'; m.textContent='PIN troppo corto'; return; }
-  m.className='login-msg'; m.textContent='Verifica…';
+  const m=$('loginMsg'), btn=$('loginBtn');
+  const email=($('loginEmail').value||'').trim();
+  const pass=$('loginPass').value||'';
+  if(!email || !pass){ m.className='login-msg err'; m.textContent='Inserisci email e password'; return; }
+  m.className='login-msg'; m.textContent='Verifica…'; btn.disabled=true;
   try{
-    const {error}=await sb.auth.signInWithPassword({ email: LOGIN_EMAIL, password: pin });
+    const {error}=await sb.auth.signInWithPassword({ email, password: pass });
     if(error) throw error; // successo: ci pensa onAuthStateChange
   }catch(err){
-    m.className='login-msg err';
     const raw=(err && err.message) ? err.message : '';
-    let msg='PIN errato';
+    let msg='Email o password errati';
     if(/rate|many|limit/i.test(raw)) msg='Troppi tentativi, riprova tra poco';
     else if(/not confirmed|confirm/i.test(raw)) msg='Utente non confermato su Supabase';
-    else if(/invalid login|invalid credentials/i.test(raw)) msg='Utente o PIN non corrispondono';
+    else if(/invalid login|invalid credentials/i.test(raw)) msg='Email o password errati';
     else if(/disabled|not enabled|provider/i.test(raw)) msg='Login email/password disattivato su Supabase';
     else if(/fetch|network|failed to/i.test(raw)) msg='Connessione a Supabase non riuscita';
     else if(raw) msg=raw;
-    m.textContent=msg;
-    pin=''; renderDots();
+    m.className='login-msg err'; m.textContent=msg;
+    $('loginPass').value='';
     const c=$('loginCard'); c.classList.add('shake'); setTimeout(()=>c.classList.remove('shake'),400);
-  }
+  }finally{ btn.disabled=false; }
 }
-$('pinPad').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) pinPress(b.dataset.k); });
-document.addEventListener('keydown',e=>{
-  if($('login').hidden) return;
-  if(/^[0-9]$/.test(e.key)) pinPress(e.key);
-  else if(e.key==='Backspace'){ e.preventDefault(); pinPress('back'); }
-  else if(e.key==='Enter') pinPress('ok');
-});
+$('loginForm').addEventListener('submit',e=>{ e.preventDefault(); submitLogin(); });
 
 (function init(){
   let url=window.SUPABASE_URL, key=window.SUPABASE_ANON_KEY;
