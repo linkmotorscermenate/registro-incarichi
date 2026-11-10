@@ -12,6 +12,7 @@ i tuoi dispositivi. Pensato per essere pubblicato su **GitHub Pages**.
 | `config.js` | Le 2 chiavi del tuo progetto Supabase (le incolli tu) |
 | `schema.sql` | Crea la tabella e le regole di sicurezza nel database |
 | `seed.sql` | Carica i tuoi 45 veicoli iniziali |
+| `schema-trattative-annunci.sql` | Crea le tabelle delle pagine **Trattative** e **Gestione annunci** |
 | `.nojekyll` | Serve a GitHub Pages per pubblicare correttamente |
 
 ## Provvigioni (già configurate)
@@ -69,6 +70,20 @@ link di accesso via email non ti riporta al sito:
   e compaiono su ogni tuo dispositivo. Non serve essere sul PC di casa.
 
 ---
+
+## Pagine Trattative e Gestione annunci
+Il sito ha tre schede in alto: **Registro**, **Trattative**, **Gestione annunci**.
+Per attivare le due nuove pagine, esegui **una volta** `schema-trattative-annunci.sql`
+nel SQL Editor di Supabase (dopo `schema.sql`).
+
+- **Trattative**: scegli un veicolo tra gli incarichi, inserisci prezzo offerta,
+  garanzia (light / advanced / completa / nessuna) col relativo costo, e costo trapasso.
+  Le provvigioni sono calcolate in automatico sul prezzo offerta; l'**Anticipo** =
+  provvigione +IVA + trapasso.
+- **Gestione annunci**: gestisce la rotazione (Subito 5 auto + 15 moto, AutoScout24 15 auto),
+  segnala gli annunci da ruotare dopo 10 giorni e suggerisce quali veicoli inserire,
+  ordinati per richiesta di mercato, con un prezzo d'annuncio consigliato. I prezzi sono
+  stime dal prezzo di vendita: per il valore puntuale usa la valutazione di AutoScout24.
 
 ### Nota privacy
 GitHub Pages serve pagine **pubbliche**: chiunque può aprire l'indirizzo del sito,

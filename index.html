@@ -262,6 +262,61 @@ tfoot .gross{color:var(--accent)}
 .login-card.shake{animation:shake .38s}
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 
+/* ---- view nav ---- */
+.viewnav{display:flex;gap:4px;background:var(--surface-3);border-radius:11px;padding:4px;overflow-x:auto}
+.viewnav button{border:none;background:none;color:var(--muted);padding:9px 16px;border-radius:8px;font-size:.86rem;font-weight:700;white-space:nowrap;font-family:var(--font-display)}
+.viewnav button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.view[hidden]{display:none!important}
+
+/* ---- garanzia chip ---- */
+.gar{display:inline-block;font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:7px;white-space:nowrap}
+.gar.completa{background:var(--petrol-soft);color:var(--petrol)}
+.gar.advanced{background:var(--warn-soft);color:var(--warn)}
+.gar.light{background:var(--surface-3);color:var(--muted)}
+.gar.nessuna{background:var(--surface-3);color:var(--faint)}
+td .ant{font-weight:800;color:var(--accent)}
+tfoot .ant{color:var(--accent)}
+
+/* ---- gestione annunci ---- */
+.ann-note{background:var(--petrol-soft);color:var(--petrol);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:.83rem;line-height:1.5}
+.ann-note b{font-weight:700}
+.ann-note ul{margin:8px 0 0;padding-left:18px}
+.ann-note li{margin:2px 0}
+.groups{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.groups{grid-template-columns:1fr 1fr}}
+.grp-card{background:var(--surface);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.grp-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--hairline);background:var(--surface-2)}
+.grp-head h3{font-size:.98rem;font-weight:800;flex:1}
+.grp-head .count{font-family:var(--font-mono);font-weight:700;font-size:.88rem;color:var(--muted)}
+.grp-head .count.full{color:var(--good)}
+.grp-head .count.over{color:var(--accent)}
+.slotlist{list-style:none;margin:0;padding:6px}
+.slotlist li{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px}
+.slotlist li:hover{background:var(--surface-2)}
+.slot-main{flex:1;min-width:0}
+.slot-main b{font-weight:650;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.85rem}
+.slot-main small{color:var(--muted);font-size:.73rem}
+.daybadge{font-size:.69rem;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.daybadge.ok{background:var(--surface-3);color:var(--muted)}
+.daybadge.warn{background:var(--warn-soft);color:var(--warn)}
+.daybadge.rot{background:var(--accent);color:var(--accent-ink)}
+.grp-empty{padding:16px;text-align:center;color:var(--faint);font-size:.81rem}
+.sugg{border-top:1px dashed var(--hairline);padding:11px 14px}
+.sugg h4{font-size:.67rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;margin-bottom:9px}
+.sugg-row{display:flex;align-items:center;gap:10px;padding:7px 0}
+.sugg-row .s-main{flex:1;min-width:0}
+.sugg-row .s-main b{font-weight:600;font-size:.83rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sugg-row .s-main small{display:block;color:var(--muted);font-size:.71rem}
+.sugg-row .s-price{text-align:right;white-space:nowrap}
+.sugg-row .s-price b{color:var(--petrol);font-weight:700;font-size:.84rem;font-variant-numeric:tabular-nums}
+.sugg-row .s-price small{display:block;color:var(--faint);font-size:.67rem;font-variant-numeric:tabular-nums}
+.mini{border:1px solid var(--hairline);background:var(--surface-2);color:var(--ink);border-radius:7px;padding:6px 10px;font-size:.73rem;font-weight:700;white-space:nowrap}
+.mini:hover{background:var(--surface-3)}
+.mini.acc{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.mini.rot{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.score{font-size:.63rem;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--surface-3);color:var(--muted);font-variant-numeric:tabular-nums}
+.score.hi{background:var(--accent-soft);color:var(--accent)}
+
 @media (max-width:860px){
   .kpis{grid-template-columns:1fr 1fr}
   .table-wrap{display:none}
@@ -301,7 +356,12 @@ tfoot .gross{color:var(--accent)}
         <span>Veicolo</span>
       </button>
     </div>
-    <div class="kpis">
+    <nav class="viewnav" id="viewnav" aria-label="Sezioni">
+      <button type="button" data-v="registro" aria-pressed="true">Registro</button>
+      <button type="button" data-v="trattative" aria-pressed="false">Trattative</button>
+      <button type="button" data-v="annunci" aria-pressed="false">Gestione annunci</button>
+    </nav>
+    <div class="kpis" id="kpiRow">
       <div class="kpi"><span class="lab">Veicoli</span><span class="val num" id="kVeh">—</span><span class="sub" id="kVehSub">in registro</span></div>
       <div class="kpi"><span class="lab">Valore parco</span><span class="val num" id="kVal">—</span><span class="sub">prezzi di vendita</span></div>
       <div class="kpi net"><span class="lab"><span class="dot" style="background:var(--petrol)"></span>Provvigioni nette</span><span class="val num" id="kNet">—</span><span class="sub">imponibile, senza IVA</span></div>
@@ -311,6 +371,7 @@ tfoot .gross{color:var(--accent)}
 </header>
 
 <main>
+<section class="view" id="view-registro">
   <div class="toolbar">
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
@@ -353,6 +414,56 @@ tfoot .gross{color:var(--accent)}
     <h3>Nessun veicolo</h3>
     <p id="emptyMsg">Aggiungi il primo incarico di conto vendita con il pulsante “Veicolo”.</p>
   </div>
+</section>
+
+<!-- ===== Trattative ===== -->
+<section class="view" id="view-trattative" hidden>
+  <div class="kpis" id="tKpis" style="margin-bottom:16px">
+    <div class="kpi"><span class="lab">Trattative</span><span class="val num" id="tKCount">—</span><span class="sub" id="tKSub">aperte</span></div>
+    <div class="kpi gross"><span class="lab"><span class="dot" style="background:var(--accent)"></span>Provvigioni +IVA</span><span class="val num" id="tKProv">—</span><span class="sub">sulle offerte</span></div>
+    <div class="kpi net"><span class="lab"><span class="dot" style="background:var(--petrol)"></span>Anticipi totali</span><span class="val num" id="tKAnt">—</span><span class="sub">provv.+IVA + trapasso</span></div>
+    <div class="kpi"><span class="lab">Garanzie</span><span class="val num" id="tKGar">—</span><span class="sub">costo garanzie</span></div>
+  </div>
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input id="tSearch" type="search" placeholder="Cerca veicolo in trattativa…" autocomplete="off">
+    </div>
+    <span style="flex:1"></span>
+    <button class="btn-primary" id="addTratBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Trattativa</span>
+    </button>
+  </div>
+  <div class="banner warn" id="tErr"></div>
+  <div class="table-wrap">
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th>Veicolo</th><th>Tipo</th>
+          <th class="r">Prezzo offerta</th><th class="r">Provv. +IVA</th>
+          <th>Garanzia</th><th class="r">Costo gar.</th><th class="r">Trapasso</th>
+          <th class="r">Anticipo</th><th></th>
+        </tr></thead>
+        <tbody id="tTbody"></tbody>
+        <tfoot id="tTfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="cards" id="tCards"></div>
+  <div class="empty" id="tEmpty" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3zM5 7v13a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7"/><path d="M9 12h6"/></svg>
+    <h3>Nessuna trattativa</h3>
+    <p>Aggiungi una trattativa scegliendo un veicolo tra gli incarichi, col pulsante “Trattativa”.</p>
+  </div>
+</section>
+
+<!-- ===== Gestione annunci ===== -->
+<section class="view" id="view-annunci" hidden>
+  <div class="ann-note" id="annNote"></div>
+  <div class="banner warn" id="aErr"></div>
+  <div class="groups" id="annGroups"></div>
+</section>
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -414,6 +525,43 @@ tfoot .gross{color:var(--accent)}
   <div class="sheet-foot">
     <button type="button" class="ghost" id="cancelBtn" style="justify-content:center">Annulla</button>
     <button type="submit" form="form" class="btn-primary" id="saveBtn">Salva</button>
+  </div>
+</aside>
+
+<aside class="sheet" id="tsheet" aria-hidden="true" aria-label="Scheda trattativa">
+  <div class="sheet-head">
+    <h2 id="tsheetTitle">Nuova trattativa</h2>
+    <button class="icon-btn" id="tCloseSheet" aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <form class="sheet-body" id="tform">
+    <div class="grp">
+      <div class="grp-lab">Veicolo</div>
+      <div class="fields">
+        <div class="f wide"><label for="tf-veicolo">Veicolo (dagli incarichi)</label><select id="tf-veicolo" name="veicolo"></select></div>
+      </div>
+    </div>
+    <div class="grp">
+      <div class="grp-lab">Offerta</div>
+      <div class="fields">
+        <div class="f wide"><label for="tf-prezzo">Prezzo offerta (€)</label><input id="tf-prezzo" name="prezzo" inputmode="numeric" required placeholder="es. 11500"></div>
+        <div class="f"><label for="tf-gar-tipo">Garanzia</label><select id="tf-gar-tipo" name="garanzia"><option value="nessuna">Nessuna garanzia</option><option value="light">Light</option><option value="advanced">Advanced</option><option value="completa">Completa</option></select></div>
+        <div class="f"><label for="tf-gar-costo">Costo garanzia (€)</label><input id="tf-gar-costo" name="costo_garanzia" inputmode="numeric" placeholder="0"></div>
+        <div class="f wide"><label for="tf-trap">Costo trapasso (€)</label><input id="tf-trap" name="costo_trapasso" inputmode="numeric" placeholder="es. 300"></div>
+      </div>
+      <div class="calc" id="tcalc">
+        <div class="calc-row"><span>Aliquota (sul prezzo offerta)</span><b id="tc-rate">—</b></div>
+        <div class="calc-row lead"><span>Provvigione netta</span><b class="num" id="tc-net">—</b></div>
+        <div class="calc-row"><span>Provvigione +IVA</span><b class="num" id="tc-gross">—</b></div>
+        <div class="calc-row"><span>+ Costo trapasso</span><b class="num" id="tc-trap">—</b></div>
+        <div class="calc-row lead2"><span>Anticipo (provv.+IVA + trapasso)</span><b class="num ant" id="tc-ant">—</b></div>
+      </div>
+    </div>
+  </form>
+  <div class="sheet-foot">
+    <button type="button" class="ghost" id="tCancelBtn" style="justify-content:center">Annulla</button>
+    <button type="submit" form="tform" class="btn-primary" id="tSaveBtn">Salva</button>
   </div>
 </aside>
 
@@ -688,6 +836,260 @@ $('exportBtn').onclick=()=>{
 };
 $('logoutBtn').onclick=async()=>{ if(sb) await sb.auth.signOut(); };
 
+/* ========== Navigazione a schede ========== */
+let currentView='registro';
+function setView(v){
+  currentView=v;
+  ['registro','trattative','annunci'].forEach(x=>{ const el=$('view-'+x); if(el) el.hidden = (x!==v); });
+  [...$('viewnav').children].forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===v)));
+  const reg=(v==='registro');
+  $('kpiRow').hidden=!reg; $('addBtn').hidden=!reg; $('exportBtn').hidden=!reg;
+  hidePop();
+  if(v==='trattative') renderTrat();
+  if(v==='annunci') renderAnn();
+}
+$('viewnav').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) setView(b.dataset.v); });
+
+/* ========== Trattative ========== */
+let trattative=[], rtTrat=null, editTratId=null, tState={q:''}, pendingTDel=null;
+const GAR_LABEL={nessuna:'Nessuna',light:'Light',advanced:'Advanced',completa:'Completa'};
+function vehById(id){ return items.find(x=>x.id===id); }
+function vehLabelFull(v){ return (v.modello||'veicolo')+(v.targa?(' · '+v.targa):'')+(v.tipo?(' ('+v.tipo+')'):''); }
+function tProvGross(t){ return provGross(toNum(t.prezzo_offerta)); }
+function tAnticipo(t){ return tProvGross(t)+toNum(t.costo_trapasso); }
+function tFiltered(){
+  let r=trattative.slice();
+  if(tState.q){ const q=tState.q.toLowerCase(); r=r.filter(t=>String(t.veicolo_label||'').toLowerCase().includes(q)); }
+  r.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  return r;
+}
+function renderTrat(){
+  const rows=tFiltered();
+  const prov=trattative.reduce((s,t)=>s+tProvGross(t),0);
+  const ant=trattative.reduce((s,t)=>s+tAnticipo(t),0);
+  const gar=trattative.reduce((s,t)=>s+toNum(t.costo_garanzia),0);
+  $('tKCount').textContent=trattative.length;
+  $('tKProv').textContent=fmtEur0.format(prov);
+  $('tKAnt').textContent=fmtEur0.format(ant);
+  $('tKGar').textContent=fmtEur0.format(gar);
+  const tb=$('tTbody'), cards=$('tCards'), tf=$('tTfoot');
+  tb.innerHTML=''; cards.innerHTML=''; tf.innerHTML='';
+  $('tEmpty').hidden=!(loaded && rows.length===0);
+  for(const t of rows){
+    const po=toNum(t.prezzo_offerta), r=rateFor(po), g=(t.garanzia||'nessuna');
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div class="veh"><b>${esc(t.veicolo_label||'—')}</b></div></td>
+      <td><span class="tag ${t.tipo==='Moto'?'moto':'auto'}">${esc(t.tipo||'—')}</span></td>
+      <td class="r num"><span class="price">${fmtEur0.format(po)}</span></td>
+      <td class="r num gross">${fmtEur2.format(tProvGross(t))}</td>
+      <td><span class="gar ${g}">${esc(GAR_LABEL[g]||g)}</span></td>
+      <td class="r num">${fmtEur0.format(toNum(t.costo_garanzia))}</td>
+      <td class="r num">${fmtEur0.format(toNum(t.costo_trapasso))}</td>
+      <td class="r num ant">${fmtEur2.format(tAnticipo(t))}</td>
+      <td><div class="row-act">
+        <button class="icon-btn" data-tedit="${t.id}" aria-label="Modifica"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+        <button class="icon-btn del" data-tdel="${t.id}" aria-label="Elimina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+      </div></td>`;
+    tb.appendChild(tr);
+    const c=document.createElement('div'); c.className='card';
+    c.innerHTML=`
+      <div class="card-top"><div><b>${esc(t.veicolo_label||'—')}</b><small>Offerta ${fmtEur0.format(po)} · ${esc(GAR_LABEL[g]||g)}</small></div>
+        <span class="rate ${rateClass(r)}">${rateLabel(r)}</span></div>
+      <div class="card-fig">
+        <div><span class="k">Provv.+IVA</span><span class="v" style="color:var(--accent)">${fmtEur0.format(tProvGross(t))}</span></div>
+        <div><span class="k">Trapasso</span><span class="v">${fmtEur0.format(toNum(t.costo_trapasso))}</span></div>
+        <div><span class="k">Anticipo</span><span class="v" style="color:var(--accent)">${fmtEur0.format(tAnticipo(t))}</span></div>
+      </div>
+      <div class="card-act">
+        <button class="ghost" data-tedit="${t.id}">Modifica</button>
+        <button class="ghost del" data-tdel="${t.id}" style="color:var(--accent)">Elimina</button>
+      </div>`;
+    cards.appendChild(c);
+  }
+  if(rows.length){
+    const prov2=rows.reduce((s,t)=>s+tProvGross(t),0), ant2=rows.reduce((s,t)=>s+tAnticipo(t),0);
+    tf.innerHTML=`<tr><td colspan="3">Totale · ${rows.length}</td>
+      <td class="r num gross">${fmtEur2.format(prov2)}</td><td colspan="3"></td>
+      <td class="r num ant">${fmtEur2.format(ant2)}</td><td></td></tr>`;
+  }
+}
+function tLiveCalc(){
+  const po=toNum($('tf-prezzo').value), trap=toNum($('tf-trap').value);
+  if(!po){ ['tc-rate','tc-net','tc-gross','tc-trap','tc-ant'].forEach(id=>$(id).textContent='—'); return; }
+  const r=rateFor(po);
+  $('tc-rate').innerHTML=`<span class="rate ${rateClass(r)}">${rateLabel(r)}</span>`;
+  $('tc-net').textContent=fmtEur2.format(provNet(po));
+  $('tc-gross').textContent=fmtEur2.format(provGross(po));
+  $('tc-trap').textContent=fmtEur2.format(trap);
+  $('tc-ant').textContent=fmtEur2.format(provGross(po)+trap);
+}
+function fillVeicoloSelect(sel){
+  const s=$('tf-veicolo'); s.innerHTML='';
+  const opts=items.slice().sort((a,b)=>String(a.modello||'').localeCompare(String(b.modello||''),'it'));
+  const ph=document.createElement('option'); ph.value=''; ph.textContent=opts.length?'— scegli un veicolo —':'Nessun veicolo in registro'; s.appendChild(ph);
+  for(const v of opts){ const o=document.createElement('option'); o.value=v.id; o.textContent=vehLabelFull(v); s.appendChild(o); }
+  if(sel) s.value=sel;
+}
+function openTrat(t){
+  editTratId=t?t.id:null;
+  $('tsheetTitle').textContent=t?'Modifica trattativa':'Nuova trattativa';
+  const f=$('tform'); f.reset();
+  fillVeicoloSelect(t?t.veicolo_id:'');
+  if(t){ $('tf-prezzo').value=t.prezzo_offerta!=null?t.prezzo_offerta:''; $('tf-gar-tipo').value=t.garanzia||'nessuna';
+    $('tf-gar-costo').value=t.costo_garanzia!=null?t.costo_garanzia:''; $('tf-trap').value=t.costo_trapasso!=null?t.costo_trapasso:''; }
+  tLiveCalc();
+  $('scrim').hidden=false; $('tsheet').classList.add('open'); $('tsheet').setAttribute('aria-hidden','false');
+}
+function closeTrat(){ $('tsheet').classList.remove('open'); $('tsheet').setAttribute('aria-hidden','true'); $('scrim').hidden=true; editTratId=null; }
+async function saveTrat(e){
+  e.preventDefault();
+  if(!sb||!canWrite){ toast('Accedi per modificare'); return; }
+  const vid=$('tf-veicolo').value, v=vehById(vid), po=toNum($('tf-prezzo').value);
+  if(!vid||!v){ toast('Scegli un veicolo'); return; }
+  if(!po){ $('tf-prezzo').focus(); toast('Inserisci il prezzo offerta'); return; }
+  const rec={ veicolo_id:vid, veicolo_label:(v.modello||'')+(v.targa?(' · '+v.targa):''), tipo:v.tipo||'Auto',
+    prezzo_offerta:po, garanzia:$('tf-gar-tipo').value, costo_garanzia:toNum($('tf-gar-costo').value), costo_trapasso:toNum($('tf-trap').value) };
+  $('tSaveBtn').disabled=true;
+  try{ let error;
+    if(editTratId){ ({error}=await sb.from('trattative').update(rec).eq('id',editTratId)); }
+    else { ({error}=await sb.from('trattative').insert(rec)); }
+    if(error) throw error;
+    toast(editTratId?'Trattativa aggiornata':'Trattativa aggiunta'); closeTrat(); await loadTrat();
+  }catch(err){ toast('Errore: '+(err.message||'salvataggio non riuscito')); }
+  finally{ $('tSaveBtn').disabled=false; }
+}
+async function delTrat(id){
+  if(pendingTDel!==id){ pendingTDel=id; toast('Tocca di nuovo Elimina per confermare'); setTimeout(()=>{if(pendingTDel===id)pendingTDel=null;},3500); return; }
+  pendingTDel=null;
+  try{ const {error}=await sb.from('trattative').delete().eq('id',id); if(error) throw error; toast('Trattativa eliminata'); await loadTrat(); }
+  catch(err){ toast('Errore: '+(err.message||'eliminazione non riuscita')); }
+}
+async function loadTrat(){
+  if(!sb) return;
+  try{ const {data,error}=await sb.from('trattative').select('*'); if(error) throw error; trattative=data||[]; $('tErr').style.display='none'; if(currentView==='trattative') renderTrat(); }
+  catch(err){ $('tErr').textContent='Errore trattative: '+(err.message||err); $('tErr').style.display='flex'; }
+}
+
+/* ========== Gestione annunci ========== */
+let annunci=[], rtAnn=null;
+const ANN_GROUPS=[
+  {key:'subito-auto',    piattaforma:'subito',    tipo:'Auto', label:'Subito · Auto', limit:5},
+  {key:'autoscout-auto', piattaforma:'autoscout', tipo:'Auto', label:'AutoScout24 · Auto', limit:15},
+  {key:'subito-moto',    piattaforma:'subito',    tipo:'Moto', label:'Subito · Moto', limit:15}
+];
+const MAX_GIORNI_ANN=10;
+function demandScore(v){
+  let s=48;
+  const p=toNum(v.prezzo), km=toNum(v.km);
+  const mod=(v.modello||'').toLowerCase(), carr=(v.carr||'').toLowerCase(), alim=(v.alim||'').toLowerCase(), cam=(v.cambio||'').toLowerCase();
+  if(p<=8000) s+=18; else if(p<=15000) s+=13; else if(p<=25000) s+=5; else if(p>40000) s-=12; else s-=3;
+  if(km){ if(km<60000) s+=8; else if(km>150000) s-=9; else if(km>100000) s-=3; }
+  if(/suv|fuoristrada/.test(carr)) s+=9;
+  if(/4\/5|2\/3|berlina|citycar|monovolume|station/.test(carr)) s+=6;
+  if(/transporter|furgon/.test(carr)) s-=5;
+  if(/cabrio|coup/.test(carr)) s-=6;
+  if(v.tipo==='Moto'){ if(/honda|yamaha|suzuki|kawasaki|piaggio|vespa|aprilia|bmw/.test(mod)) s+=9; if(/scooter/.test(carr)) s+=6; }
+  else{ if(/fiat|volkswagen|ford|opel|renault|peugeot|toyota|dacia|citroen|hyundai|kia|nissan|skoda|seat/.test(mod)) s+=10; if(/mercedes|bmw|audi/.test(mod)) s+=2; if(/ferrari|maserati|porsche|jaguar|land rover/.test(mod)) s-=3; }
+  if(/diesel|benzina/.test(alim)) s+=6; else if(/gpl|metano/.test(alim)) s+=3; else if(/ibrid|elettrica\//.test(alim)) s+=1; else if(/elettrica/.test(alim)) s-=6;
+  if(/autom|sequenz/.test(cam)) s+=3;
+  const yr=parseInt(String(v.imm||'').split('/').pop(),10);
+  if(yr && yr>1980){ const age=(new Date().getFullYear())-yr; if(age<=4) s+=10; else if(age<=8) s+=4; else if(age>=25) s+=5; else if(age>12) s-=4; }
+  return Math.max(1,Math.min(99,Math.round(s)));
+}
+function prezzoAnnuncio(v){
+  const p=toNum(v.prezzo); if(!p) return 0;
+  let x=p*1.04;
+  if(x>=10000) x=Math.round(x/100)*100-10;
+  else if(x>=3000) x=Math.round(x/50)*50-10;
+  else x=Math.round(x/10)*10-1;
+  return Math.max(p,Math.round(x));
+}
+function annOfGroup(g){ return annunci.filter(a=>a.piattaforma===g.piattaforma && a.tipo===g.tipo && a.attivo!==false); }
+function renderAnnNote(){
+  $('annNote').innerHTML=`<b>Come funziona.</b> Regole fisse: Subito 5 auto + 15 moto, AutoScout24 15 auto. Ogni annuncio resta al massimo <b>${MAX_GIORNI_ANN} giorni</b>, poi va ruotato (badge rosso). I <b>suggeriti</b> sono i veicoli del registro con più richiesta sul mercato usato italiano (citycar e compatte, benzina/diesel, SUV, km e prezzo contenuti — dati 2025), con il <b>prezzo annuncio consigliato</b> = incasso atteso + piccolo margine di trattativa.
+  <ul><li>Il sito non legge i prezzi live dei portali: i prezzi sono una stima dal tuo prezzo di vendita. Per il valore puntuale usa la valutazione di AutoScout24 su annunci simili.</li></ul>`;
+}
+function slotBadge(d){
+  if(d==null) return `<span class="daybadge ok">—</span>`;
+  if(d>=MAX_GIORNI_ANN) return `<span class="daybadge rot">${d}g · ruota</span>`;
+  if(d>=MAX_GIORNI_ANN-3) return `<span class="daybadge warn">${d}g</span>`;
+  return `<span class="daybadge ok">${d}g</span>`;
+}
+function renderAnn(){
+  renderAnnNote();
+  const wrap=$('annGroups'); wrap.innerHTML='';
+  for(const g of ANN_GROUPS){
+    const active=annOfGroup(g).slice().sort((a,b)=>(daysSince(b.data_inizio)||0)-(daysSince(a.data_inizio)||0));
+    const free=g.limit-active.length;
+    const inThis=new Set(active.map(a=>a.veicolo_id));
+    const cand=items.filter(v=>v.tipo===g.tipo && !inThis.has(v.id)).map(v=>({v,score:demandScore(v)})).sort((a,b)=>b.score-a.score);
+    const sugg=cand.slice(0,Math.max(3, free>0?free:3));
+    const countCls=active.length>g.limit?'over':active.length===g.limit?'full':'';
+    const card=document.createElement('div'); card.className='grp-card';
+    let html=`<div class="grp-head"><h3>${esc(g.label)}</h3><span class="count ${countCls}">${active.length}/${g.limit}</span></div>`;
+    if(active.length){
+      html+='<ul class="slotlist">';
+      for(const a of active){ const d=daysSince(a.data_inizio);
+        html+=`<li><div class="slot-main"><b>${esc(a.veicolo_label||'—')}</b><small>in annuncio dal ${a.data_inizio?esc(String(a.data_inizio).split('-').reverse().join('/')):'—'}</small></div>
+          ${slotBadge(d)}
+          <button class="mini ${d!=null&&d>=MAX_GIORNI_ANN?'rot':''}" data-aremove="${a.id}">${d!=null&&d>=MAX_GIORNI_ANN?'Ruota':'Togli'}</button></li>`;
+      }
+      html+='</ul>';
+    } else {
+      html+=`<div class="grp-empty">Nessun annuncio attivo — aggiungi dai suggeriti.</div>`;
+    }
+    if(sugg.length){
+      html+=`<div class="sugg"><h4>${free>0?('Suggeriti · '+free+' slot liberi'):'Pronti a entrare (slot pieni)'}</h4>`;
+      for(const it of sugg){ const v=it.v, score=it.score;
+        html+=`<div class="sugg-row">
+          <span class="score ${score>=70?'hi':''}">${score}</span>
+          <div class="s-main"><b>${esc(v.modello||'—')}</b><small>${esc(v.targa||'')}${v.km?(' · '+fmtNum.format(toNum(v.km))+' km'):''}${v.alim?(' · '+esc(v.alim)):''}</small></div>
+          <div class="s-price"><b>${fmtEur0.format(prezzoAnnuncio(v))}</b><small>incasso ${fmtEur0.format(toNum(v.prezzo))}</small></div>
+          <button class="mini acc" data-aadd="${v.id}" data-agrp="${g.key}">Metti</button>
+        </div>`;
+      }
+      html+='</div>';
+    }
+    card.innerHTML=html; wrap.appendChild(card);
+  }
+}
+function groupByKey(k){ return ANN_GROUPS.find(g=>g.key===k); }
+async function addAnn(veicoloId,grpKey){
+  if(!sb||!canWrite){ toast('Accedi per modificare'); return; }
+  const g=groupByKey(grpKey), v=vehById(veicoloId); if(!g||!v) return;
+  const rec={ veicolo_id:v.id, veicolo_label:(v.modello||'')+(v.targa?(' · '+v.targa):''), tipo:v.tipo||'Auto',
+    piattaforma:g.piattaforma, data_inizio:new Date().toISOString().slice(0,10), attivo:true };
+  try{ const {error}=await sb.from('annunci').insert(rec); if(error) throw error; toast('Annuncio aggiunto · '+g.label); await loadAnn(); }
+  catch(err){ toast('Errore: '+(err.message||'non aggiunto')); }
+}
+async function removeAnn(id){
+  if(!sb||!canWrite){ toast('Accedi per modificare'); return; }
+  try{ const {error}=await sb.from('annunci').delete().eq('id',id); if(error) throw error; toast('Annuncio rimosso'); await loadAnn(); }
+  catch(err){ toast('Errore: '+(err.message||'non rimosso')); }
+}
+async function loadAnn(){
+  if(!sb) return;
+  try{ const {data,error}=await sb.from('annunci').select('*'); if(error) throw error; annunci=data||[]; $('aErr').style.display='none'; if(currentView==='annunci') renderAnn(); }
+  catch(err){ $('aErr').textContent='Errore annunci: '+(err.message||err); $('aErr').style.display='flex'; }
+}
+
+/* eventi pagine nuove */
+$('addTratBtn').onclick=()=>openTrat(null);
+$('tCloseSheet').onclick=closeTrat; $('tCancelBtn').onclick=closeTrat;
+$('tform').addEventListener('submit',saveTrat);
+$('tf-prezzo').addEventListener('input',tLiveCalc);
+$('tf-trap').addEventListener('input',tLiveCalc);
+$('tSearch').addEventListener('input',e=>{ tState.q=e.target.value; renderTrat(); });
+$('scrim').onclick=()=>{ closeSheet(); closeTrat(); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeTrat(); });
+document.body.addEventListener('click',e=>{
+  const te=e.target.closest('[data-tedit]'); if(te){ openTrat(trattative.find(x=>x.id===te.dataset.tedit)); return; }
+  const td=e.target.closest('[data-tdel]'); if(td){ delTrat(td.dataset.tdel); return; }
+  const aa=e.target.closest('[data-aadd]'); if(aa){ addAnn(aa.dataset.aadd, aa.dataset.agrp); return; }
+  const ar=e.target.closest('[data-aremove]'); if(ar){ removeAnn(ar.dataset.aremove); return; }
+});
+
 /* ---------- Supabase + auth ---------- */
 function showLogin(msg,cls){ $('app').hidden=true; $('login').hidden=false;
   if(msg){ const m=$('loginMsg'); m.textContent=msg; m.className='login-msg '+(cls||''); } }
@@ -697,21 +1099,27 @@ async function loadData(){
     const {data,error}=await sb.from('veicoli').select('*');
     if(error) throw error;
     items=data||[]; loaded=true; $('loadBanner').style.display='none'; $('errBanner').style.display='none'; render();
+    if(currentView==='trattative') renderTrat(); else if(currentView==='annunci') renderAnn();
   }catch(err){ loaded=true; $('loadBanner').style.display='none';
     $('errBanner').textContent='Errore nel caricamento: '+(err.message||err); $('errBanner').style.display='flex'; render(); }
 }
 function subscribeRealtime(){
-  if(!sb || rtChannel) return;
-  rtChannel=sb.channel('veicoli-rt')
-    .on('postgres_changes',{event:'*',schema:'public',table:'veicoli'},()=>loadData())
-    .subscribe();
+  if(!sb) return;
+  if(!rtChannel){ rtChannel=sb.channel('veicoli-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'veicoli'},()=>loadData()).subscribe(); }
+  if(!rtTrat){ rtTrat=sb.channel('trattative-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'trattative'},()=>loadTrat()).subscribe(); }
+  if(!rtAnn){ rtAnn=sb.channel('annunci-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'annunci'},()=>loadAnn()).subscribe(); }
 }
 async function onSignedIn(){
   $('login').hidden=true; $('app').hidden=false; canWrite=true;
   $('loadBanner').style.display='flex';
-  await loadData(); subscribeRealtime();
+  await loadData(); loadTrat(); loadAnn(); subscribeRealtime();
 }
-function onSignedOut(){ canWrite=false; items=[]; if(rtChannel){ try{sb.removeChannel(rtChannel);}catch(e){} rtChannel=null; }
+function onSignedOut(){ canWrite=false; items=[]; trattative=[]; annunci=[];
+  for(const ch of [rtChannel,rtTrat,rtAnn]){ if(ch){ try{sb.removeChannel(ch);}catch(e){} } }
+  rtChannel=rtTrat=rtAnn=null;
   showLogin('','' ); }
 
 /* ---- login con email + password ---- */
