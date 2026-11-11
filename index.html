@@ -539,6 +539,10 @@ tfoot .ant{color:var(--accent)}
       <input class="flt-num" id="lfPmin" inputmode="numeric" placeholder="€ min" aria-label="Prezzo minimo">
       <input class="flt-num" id="lfPmax" inputmode="numeric" placeholder="€ max" aria-label="Prezzo massimo">
       <input class="flt-num" id="lfKmMax" inputmode="numeric" placeholder="km max" aria-label="Km massimi">
+      <button class="btn-primary" id="lfApply" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+        <span>Filtra</span>
+      </button>
       <button class="ghost" id="lfReset" type="button">Azzera</button>
       <span class="flt-count" id="lfCount"></span>
     </div>
@@ -1270,8 +1274,11 @@ function lFiltered(){
   if(lState.esito) r=r.filter(l=>(l.esito||'da_chiamare')===lState.esito);
   if(lState.marca) r=r.filter(l=>(l.marca||'')===lState.marca);
   if(lState.modello) r=r.filter(l=>(l.modello||'')===lState.modello);
-  if(lState._centro){ const c=lState._centro, R=lState.raggio;
-    r=r.filter(l=>{ const co=COMUNI_COORD && COMUNI_COORD[normComune(l.comune)]; return co && haversineKm(c[0],c[1],co[0],co[1])<=R; }); }
+  if(lState.paese){
+    if(lState.raggio && lState._centro){ const c=lState._centro, R=lState.raggio;
+      r=r.filter(l=>{ const co=COMUNI_COORD && COMUNI_COORD[normComune(l.comune)]; return co && haversineKm(c[0],c[1],co[0],co[1])<=R; }); }
+    else if(!lState.raggio){ const pn=normComune(lState.paese); r=r.filter(l=>normComune(l.comune)===pn); }
+  }
   if(lState.pmin) r=r.filter(l=>toNum(l.prezzo)>=lState.pmin);
   if(lState.pmax) r=r.filter(l=>toNum(l.prezzo)>0 && toNum(l.prezzo)<=lState.pmax);
   if(lState.kmmax) r=r.filter(l=>toNum(l.km)>0 && toNum(l.km)<=lState.kmmax);
@@ -1308,11 +1315,12 @@ function renderLeads(){
     if(COMUNI_COORD){ const c=COMUNI_COORD[normComune(lState.paese)]; if(c) lState._centro=c; else lState._paeseNF=true; }
   }
   const rows=lFiltered();
-  const anyF=lState.q||lState.chi||lState.esito||lState.marca||lState.modello||lState._centro||lState.pmin||lState.pmax||lState.kmmax;
+  const anyF=lState.q||lState.chi||lState.esito||lState.marca||lState.modello||lState.paese||lState.pmin||lState.pmax||lState.kmmax;
   let lbl = anyF ? `${rows.length} di ${leads.length}` : (leads.length?`${leads.length} annunci`:'');
   if(lState._centro) lbl+=` · entro ${lState.raggio} km da ${lState.paese}`;
   else if(lState._paeseNF) lbl+=` · paese non trovato`;
   else if(lState.paese && lState.raggio && !COMUNI_COORD) lbl+=` · carico comuni…`;
+  else if(lState.paese && !lState.raggio) lbl+=` · a ${lState.paese}`;
   $('lfCount').textContent = lbl;
   const tb=$('lTbody'), cards=$('lCards'); tb.innerHTML=''; cards.innerHTML='';
   $('lEmpty').hidden=!(loaded && rows.length===0);
@@ -1467,11 +1475,17 @@ $('lFiltroChi').addEventListener('change',e=>{ lState.chi=e.target.value; render
 $('lFiltroEsito').addEventListener('change',e=>{ lState.esito=e.target.value; renderLeads(); });
 $('lfMarca').addEventListener('change',e=>{ lState.marca=e.target.value; lState.modello=''; renderLeads(); });
 $('lfModello').addEventListener('change',e=>{ lState.modello=e.target.value; renderLeads(); });
-$('lfPaese').addEventListener('input',e=>{ lState.paese=e.target.value.trim(); renderLeads(); });
-$('lfRaggio').addEventListener('change',e=>{ lState.raggio=toNum(e.target.value); renderLeads(); });
-$('lfPmin').addEventListener('input',e=>{ lState.pmin=toNum(e.target.value); renderLeads(); });
-$('lfPmax').addEventListener('input',e=>{ lState.pmax=toNum(e.target.value); renderLeads(); });
-$('lfKmMax').addEventListener('input',e=>{ lState.kmmax=toNum(e.target.value); renderLeads(); });
+function applyLeadFilters(){
+  lState.paese=$('lfPaese').value.trim();
+  lState.raggio=toNum($('lfRaggio').value);
+  lState.pmin=toNum($('lfPmin').value);
+  lState.pmax=toNum($('lfPmax').value);
+  lState.kmmax=toNum($('lfKmMax').value);
+  renderLeads();
+}
+$('lfApply').addEventListener('click',applyLeadFilters);
+$('lfRaggio').addEventListener('change',applyLeadFilters);
+['lfPaese','lfPmin','lfPmax','lfKmMax'].forEach(id=>$(id).addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); applyLeadFilters(); } }));
 $('lfReset').addEventListener('click',()=>{ lState.marca=lState.modello=lState.paese=''; lState.raggio=lState.pmin=lState.pmax=lState.kmmax=0; $('lfPmin').value=''; $('lfPmax').value=''; $('lfKmMax').value=''; $('lfPaese').value=''; $('lfRaggio').value='0'; renderLeads(); });
 loadComuniCoord();
 $('lImportBtn').onclick=()=>$('lFile').click();
