@@ -317,6 +317,32 @@ tfoot .ant{color:var(--accent)}
 .score{font-size:.63rem;font-weight:700;padding:2px 6px;border-radius:6px;background:var(--surface-3);color:var(--muted);font-variant-numeric:tabular-nums}
 .score.hi{background:var(--accent-soft);color:var(--accent)}
 
+/* ---- chiamate / lead ---- */
+.cellsel{padding:6px 8px;border:1px solid var(--hairline);border-radius:8px;background:var(--surface-2);color:var(--ink);font-size:.8rem;max-width:160px}
+.cellsel:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.celldate{padding:6px 8px;border:1px solid var(--hairline);border-radius:8px;background:var(--surface-2);color:var(--ink);font-size:.78rem;font-family:var(--font-mono)}
+.fonte-link{display:inline-flex;align-items:center;gap:4px;font-size:.73rem;font-weight:700;color:var(--petrol);text-decoration:none;white-space:nowrap}
+.fonte-link:hover{text-decoration:underline}
+.telcell{display:inline-flex;align-items:center;gap:6px}
+.telcell a{color:var(--ink);text-decoration:none;font-variant-numeric:tabular-nums;font-size:.82rem}
+.telcell .copybtn{border:1px solid var(--hairline);background:var(--surface-2);border-radius:6px;padding:3px 7px;font-size:.67rem;font-weight:700;color:var(--muted)}
+.telcell .copybtn:hover{background:var(--surface-3)}
+.esito{display:inline-block;font-size:.69rem;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.esito.da_chiamare{background:var(--surface-3);color:var(--muted)}
+.esito.nessuna_risposta{background:var(--warn-soft);color:var(--warn)}
+.esito.richiamare{background:var(--warn-soft);color:var(--warn)}
+.esito.non_interessato{background:var(--surface-3);color:var(--faint)}
+.esito.appuntamento{background:var(--petrol-soft);color:var(--petrol)}
+.esito.acquisita{background:var(--accent-soft);color:var(--accent)}
+.esito.persa{background:var(--surface-3);color:var(--faint)}
+.day-block{padding:2px 14px 10px}
+.day-head{display:flex;justify-content:space-between;align-items:center;padding:9px 0 6px;border-bottom:1px solid var(--hairline);margin-bottom:6px}
+.day-head b{font-size:.86rem;font-variant-numeric:tabular-nums}
+.day-head span{font-size:.73rem;color:var(--muted);font-weight:600}
+.day-list{list-style:none;margin:0;padding:0}
+.day-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;font-size:.82rem}
+.day-list .dl-car{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 @media (max-width:860px){
   .kpis{grid-template-columns:1fr 1fr}
   .table-wrap{display:none}
@@ -360,6 +386,7 @@ tfoot .ant{color:var(--accent)}
       <button type="button" data-v="registro" aria-pressed="true">Registro</button>
       <button type="button" data-v="trattative" aria-pressed="false">Trattative</button>
       <button type="button" data-v="annunci" aria-pressed="false">Gestione annunci</button>
+      <button type="button" data-v="chiamate" aria-pressed="false">Chiamate</button>
     </nav>
     <div class="kpis" id="kpiRow">
       <div class="kpi"><span class="lab">Veicoli</span><span class="val num" id="kVeh">—</span><span class="sub" id="kVehSub">in registro</span></div>
@@ -464,6 +491,62 @@ tfoot .ant{color:var(--accent)}
   <div class="banner warn" id="aErr"></div>
   <div class="groups" id="annGroups"></div>
 </section>
+
+<!-- ===== Chiamate (ricerca auto) ===== -->
+<section class="view" id="view-chiamate" hidden>
+  <div class="kpis" id="lKpis" style="margin-bottom:16px">
+    <div class="kpi"><span class="lab">Annunci</span><span class="val num" id="lKTot">—</span><span class="sub">in elenco</span></div>
+    <div class="kpi"><span class="lab">Da chiamare</span><span class="val num" id="lKTodo">—</span><span class="sub">senza esito</span></div>
+    <div class="kpi net"><span class="lab"><span class="dot" style="background:var(--petrol)"></span>Chiamate oggi</span><span class="val num" id="lKToday">—</span><span class="sub">tutti i commerciali</span></div>
+    <div class="kpi gross"><span class="lab"><span class="dot" style="background:var(--accent)"></span>Acquisite</span><span class="val num" id="lKWin">—</span><span class="sub">esito positivo</span></div>
+  </div>
+  <div class="segmented" id="lSub" role="group" aria-label="Vista chiamate" style="margin-bottom:14px">
+    <button data-s="elenco" aria-pressed="true">Elenco annunci</button>
+    <button data-s="report" aria-pressed="false">Per commerciale</button>
+  </div>
+
+  <div id="lView-elenco">
+    <div class="toolbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input id="lSearch" type="search" placeholder="Cerca marca, modello, comune…" autocomplete="off">
+      </div>
+      <select class="sort" id="lFiltroChi" aria-label="Filtra commerciale"><option value="">Tutti i commerciali</option></select>
+      <select class="sort" id="lFiltroEsito" aria-label="Filtra esito"><option value="">Tutti gli esiti</option></select>
+      <span style="flex:1"></span>
+      <button class="ghost" id="lAddBtn" title="Aggiungi a mano">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span>Auto</span>
+      </button>
+      <button class="btn-primary" id="lImportBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5-5 5 5"/><path d="M12 5v12"/></svg>
+        <span>Importa CSV</span>
+      </button>
+      <input id="lFile" type="file" accept=".csv,text/csv" hidden>
+    </div>
+    <div class="banner warn" id="lErr"></div>
+    <div class="table-wrap">
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>Auto</th><th>Zona</th><th class="r">Prezzo</th><th>Telefono</th><th>Fonte</th>
+            <th>Commerciale</th><th>Data</th><th>Esito</th><th></th>
+          </tr></thead>
+          <tbody id="lTbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="cards" id="lCards"></div>
+    <div class="empty" id="lEmpty" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <h3>Nessun annuncio</h3>
+      <p>Importa il CSV della tua ricerca auto con “Importa CSV”, oppure aggiungine uno a mano.</p>
+    </div>
+  </div>
+
+  <div id="lView-report" hidden>
+    <div class="groups" id="leadReport"></div>
+  </div>
+</section>
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -562,6 +645,46 @@ tfoot .ant{color:var(--accent)}
   <div class="sheet-foot">
     <button type="button" class="ghost" id="tCancelBtn" style="justify-content:center">Annulla</button>
     <button type="submit" form="tform" class="btn-primary" id="tSaveBtn">Salva</button>
+  </div>
+</aside>
+
+<aside class="sheet" id="lsheet" aria-hidden="true" aria-label="Scheda annuncio">
+  <div class="sheet-head">
+    <h2 id="lsheetTitle">Nuovo annuncio</h2>
+    <button class="icon-btn" id="lCloseSheet" aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <form class="sheet-body" id="lform">
+    <div class="grp">
+      <div class="grp-lab">Auto</div>
+      <div class="fields">
+        <div class="f"><label for="lf-marca">Marca</label><input id="lf-marca" name="marca"></div>
+        <div class="f"><label for="lf-modello">Modello</label><input id="lf-modello" name="modello"></div>
+        <div class="f wide"><label for="lf-versione">Versione</label><input id="lf-versione" name="versione"></div>
+        <div class="f"><label for="lf-prezzo">Prezzo (€)</label><input id="lf-prezzo" name="prezzo" inputmode="numeric"></div>
+        <div class="f"><label for="lf-anno">Anno</label><input id="lf-anno" name="anno" inputmode="numeric"></div>
+        <div class="f"><label for="lf-km">Km</label><input id="lf-km" name="km" inputmode="numeric"></div>
+        <div class="f"><label for="lf-fonte">Fonte</label><input id="lf-fonte" name="fonte" list="l-fonte" placeholder="Subito / AutoScout24"></div>
+        <div class="f"><label for="lf-comune">Comune</label><input id="lf-comune" name="comune"></div>
+        <div class="f"><label for="lf-prov">Prov.</label><input id="lf-prov" name="prov" style="text-transform:uppercase"></div>
+        <div class="f wide"><label for="lf-tel">Telefono</label><input id="lf-tel" name="telefono" inputmode="tel"></div>
+        <div class="f wide"><label for="lf-link">Link annuncio</label><input id="lf-link" name="link" inputmode="url" placeholder="https://…"></div>
+      </div>
+      <datalist id="l-fonte"><option>Subito</option><option>AutoScout24</option></datalist>
+    </div>
+    <div class="grp">
+      <div class="grp-lab">Chiamata</div>
+      <div class="fields">
+        <div class="f"><label for="lf-chi">Commerciale</label><select id="lf-chi" name="commerciale"></select></div>
+        <div class="f"><label for="lf-data">Data chiamata</label><input id="lf-data" name="data_chiamata" type="date"></div>
+        <div class="f wide"><label for="lf-esito">Esito</label><select id="lf-esito" name="esito"></select></div>
+      </div>
+    </div>
+  </form>
+  <div class="sheet-foot">
+    <button type="button" class="ghost" id="lCancelBtn" style="justify-content:center">Annulla</button>
+    <button type="submit" form="lform" class="btn-primary" id="lSaveBtn">Salva</button>
   </div>
 </aside>
 
@@ -840,13 +963,14 @@ $('logoutBtn').onclick=async()=>{ if(sb) await sb.auth.signOut(); };
 let currentView='registro';
 function setView(v){
   currentView=v;
-  ['registro','trattative','annunci'].forEach(x=>{ const el=$('view-'+x); if(el) el.hidden = (x!==v); });
+  ['registro','trattative','annunci','chiamate'].forEach(x=>{ const el=$('view-'+x); if(el) el.hidden = (x!==v); });
   [...$('viewnav').children].forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===v)));
   const reg=(v==='registro');
   $('kpiRow').hidden=!reg; $('addBtn').hidden=!reg; $('exportBtn').hidden=!reg;
   hidePop();
   if(v==='trattative') renderTrat();
   if(v==='annunci') renderAnn();
+  if(v==='chiamate') renderLeads();
 }
 $('viewnav').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) setView(b.dataset.v); });
 
@@ -1090,6 +1214,214 @@ document.body.addEventListener('click',e=>{
   const ar=e.target.closest('[data-aremove]'); if(ar){ removeAnn(ar.dataset.aremove); return; }
 });
 
+/* ========== Chiamate / Lead (ricerca auto) ========== */
+let leads=[], rtLead=null, editLeadId=null, lState={q:'',chi:'',esito:'',sub:'elenco'}, pendingLDel=null;
+const VENDITORI=['Thomas','Roberta','Oussama'];
+const ESITI=[
+  {v:'da_chiamare',l:'Da chiamare'},
+  {v:'nessuna_risposta',l:'Nessuna risposta'},
+  {v:'richiamare',l:'Da richiamare'},
+  {v:'non_interessato',l:'Non interessato'},
+  {v:'appuntamento',l:'Appuntamento'},
+  {v:'acquisita',l:'Acquisita'},
+  {v:'persa',l:'Persa'}
+];
+const esitoLabel=v=>{ const e=ESITI.find(x=>x.v===v); return e?e.l:(v||'—'); };
+const esitoClass=v=>ESITI.some(x=>x.v===v)?v:'da_chiamare';
+function leadComms(){ const s=new Set(VENDITORI); leads.forEach(l=>{ if(l.commerciale) s.add(l.commerciale); }); return [...s]; }
+function esitoOptions(sel){ return ESITI.map(e=>`<option value="${e.v}"${e.v===(sel||'da_chiamare')?' selected':''}>${esc(e.l)}</option>`).join(''); }
+function commOptions(sel,withEmpty){ let h=withEmpty?`<option value="">—</option>`:''; for(const c of leadComms()){ h+=`<option value="${esc(c)}"${c===sel?' selected':''}>${esc(c)}</option>`; } return h; }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function itDate(iso){ return iso?String(iso).split('-').reverse().join('/'):''; }
+function carTitle(l){ return [l.marca,l.modello].filter(Boolean).join(' ')||'—'; }
+function lFiltered(){
+  let r=leads.slice();
+  if(lState.chi) r=r.filter(l=>(l.commerciale||'')===lState.chi);
+  if(lState.esito) r=r.filter(l=>(l.esito||'da_chiamare')===lState.esito);
+  if(lState.q){ const q=lState.q.toLowerCase(); r=r.filter(l=>[l.marca,l.modello,l.versione,l.comune,l.prov,l.telefono].some(x=>String(x||'').toLowerCase().includes(q))); }
+  r.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  return r;
+}
+function fillLeadFilters(){
+  const fc=$('lFiltroChi'); fc.innerHTML=`<option value="">Tutti i commerciali</option>`+leadComms().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''); fc.value=lState.chi||'';
+  const fe=$('lFiltroEsito'); if(fe.children.length<=1){ fe.innerHTML=`<option value="">Tutti gli esiti</option>`+ESITI.map(e=>`<option value="${e.v}">${esc(e.l)}</option>`).join(''); } fe.value=lState.esito||'';
+}
+function telCell(l){ if(!l.telefono) return '<span style="color:var(--faint)">—</span>';
+  return `<span class="telcell"><a href="tel:${esc(l.telefono)}">${esc(l.telefono)}</a><button type="button" class="copybtn" data-copy="${esc(l.telefono)}">Copia</button></span>`; }
+function fonteCell(l){ const name=l.fonte||'Link'; if(l.link) return `<a class="fonte-link" href="${esc(l.link)}" target="_blank" rel="noopener">${esc(name)} ↗</a>`; return esc(name); }
+function renderLeadKpis(){
+  const todo=leads.filter(l=>!l.esito||l.esito==='da_chiamare').length;
+  const t=todayISO();
+  const nToday=leads.filter(l=>l.data_chiamata===t && l.commerciale).length;
+  const win=leads.filter(l=>l.esito==='acquisita').length;
+  $('lKTot').textContent=leads.length; $('lKTodo').textContent=todo; $('lKToday').textContent=nToday; $('lKWin').textContent=win;
+}
+function renderLeads(){
+  renderLeadKpis(); fillLeadFilters();
+  if(lState.sub==='report'){ renderLeadReport(); return; }
+  const rows=lFiltered();
+  const tb=$('lTbody'), cards=$('lCards'); tb.innerHTML=''; cards.innerHTML='';
+  $('lEmpty').hidden=!(loaded && leads.length===0);
+  for(const l of rows){
+    const e=l.esito||'da_chiamare';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div class="veh"><b>${esc(carTitle(l))}</b><small>${esc(l.versione||'')}${l.anno?(' · '+esc(String(l.anno))):''}${l.km?(' · '+fmtNum.format(toNum(l.km))+' km'):''}</small></div></td>
+      <td>${esc([l.comune,l.prov].filter(Boolean).join(' '))||'—'}</td>
+      <td class="r num">${l.prezzo?fmtEur0.format(toNum(l.prezzo)):'—'}</td>
+      <td>${telCell(l)}</td>
+      <td>${fonteCell(l)}</td>
+      <td><select class="cellsel" data-lfield="commerciale" data-lid="${l.id}">${commOptions(l.commerciale||'',true)}</select></td>
+      <td><input class="celldate" type="date" data-lfield="data_chiamata" data-lid="${l.id}" value="${esc(l.data_chiamata||'')}"></td>
+      <td><select class="cellsel" data-lfield="esito" data-lid="${l.id}">${esitoOptions(e)}</select></td>
+      <td><div class="row-act">
+        <button class="icon-btn" data-ledit="${l.id}" aria-label="Modifica"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+        <button class="icon-btn del" data-ldel="${l.id}" aria-label="Elimina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+      </div></td>`;
+    tb.appendChild(tr);
+    const c=document.createElement('div'); c.className='card';
+    c.innerHTML=`
+      <div class="card-top"><div><b>${esc(carTitle(l))}</b><small>${esc(l.versione||'')}${l.anno?(' · '+esc(String(l.anno))):''}${l.km?(' · '+fmtNum.format(toNum(l.km))+' km'):''}</small></div>
+        <span class="esito ${esitoClass(e)}">${esc(esitoLabel(e))}</span></div>
+      <div class="card-meta">
+        ${l.prezzo?`<span class="tag" style="background:var(--surface-3);color:var(--muted)">${fmtEur0.format(toNum(l.prezzo))}</span>`:''}
+        ${(l.comune||l.prov)?`<span class="tag" style="background:var(--surface-3);color:var(--muted)">${esc([l.comune,l.prov].filter(Boolean).join(' '))}</span>`:''}
+        ${fonteCell(l)}
+      </div>
+      <div style="margin:2px 0 10px">${telCell(l)}</div>
+      <div class="fields">
+        <div class="f"><label>Commerciale</label><select class="cellsel" style="max-width:none" data-lfield="commerciale" data-lid="${l.id}">${commOptions(l.commerciale||'',true)}</select></div>
+        <div class="f"><label>Data</label><input class="celldate" type="date" data-lfield="data_chiamata" data-lid="${l.id}" value="${esc(l.data_chiamata||'')}"></div>
+        <div class="f wide"><label>Esito</label><select class="cellsel" style="max-width:none" data-lfield="esito" data-lid="${l.id}">${esitoOptions(e)}</select></div>
+      </div>
+      <div class="card-act">
+        <button class="ghost" data-ledit="${l.id}">Dettagli</button>
+        <button class="ghost del" data-ldel="${l.id}" style="color:var(--accent)">Elimina</button>
+      </div>`;
+    cards.appendChild(c);
+  }
+}
+function renderLeadReport(){
+  const wrap=$('leadReport'); wrap.innerHTML='';
+  const byChi={};
+  for(const l of leads){ const chi=l.commerciale||''; if(!chi) continue; (byChi[chi]=byChi[chi]||[]).push(l); }
+  const names=Object.keys(byChi).sort((a,b)=>a.localeCompare(b,'it'));
+  if(!names.length){ wrap.innerHTML=`<div class="grp-card"><div class="grp-empty">Nessuna chiamata registrata. Nell'elenco assegna un commerciale a un annuncio: la data di oggi si compila da sola.</div></div>`; return; }
+  for(const chi of names){
+    const list=byChi[chi];
+    const byDay={};
+    for(const l of list){ const d=l.data_chiamata||'0000-00-00'; (byDay[d]=byDay[d]||[]).push(l); }
+    const days=Object.keys(byDay).sort((a,b)=>b.localeCompare(a));
+    const card=document.createElement('div'); card.className='grp-card';
+    let html=`<div class="grp-head"><h3>${esc(chi)}</h3><span class="count">${list.length} auto · ${days.length} giorni</span></div>`;
+    for(const d of days){ const its=byDay[d];
+      html+=`<div class="day-block"><div class="day-head"><b>${d==='0000-00-00'?'Senza data':esc(itDate(d))}</b><span>${its.length} auto chiamate</span></div><ul class="day-list">`;
+      for(const l of its){ html+=`<li><span class="dl-car">${esc(carTitle(l))}${l.comune?(' <span style="color:var(--faint)">· '+esc(l.comune)+'</span>'):''}</span><span class="esito ${esitoClass(l.esito)}">${esc(esitoLabel(l.esito))}</span></li>`; }
+      html+='</ul></div>';
+    }
+    card.innerHTML=html; wrap.appendChild(card);
+  }
+}
+async function saveLeadField(id,field,value){
+  const l=leads.find(x=>x.id===id); if(!l) return;
+  const patch={}; patch[field]=value;
+  if((field==='commerciale'||field==='esito') && value && value!=='da_chiamare' && !l.data_chiamata){ patch.data_chiamata=todayISO(); }
+  Object.assign(l,patch); renderLeads();
+  try{ const {error}=await sb.from('lead').update(patch).eq('id',id); if(error) throw error; }
+  catch(err){ toast('Errore salvataggio: '+(err.message||'')); loadLeads(); }
+}
+function openLead(l){
+  editLeadId=l?l.id:null;
+  $('lsheetTitle').textContent=l?'Modifica annuncio':'Nuovo annuncio';
+  const f=$('lform'); f.reset();
+  $('lf-chi').innerHTML=commOptions(l?l.commerciale||'':'',true);
+  $('lf-esito').innerHTML=esitoOptions(l?l.esito:'da_chiamare');
+  if(l){ for(const k of ['marca','modello','versione','anno','km','fonte','comune','prov','telefono','link']) if(f[k]) f[k].value=l[k]!=null?l[k]:'';
+    f['prezzo'].value=l.prezzo!=null?l.prezzo:''; $('lf-data').value=l.data_chiamata||''; $('lf-chi').value=l.commerciale||''; $('lf-esito').value=l.esito||'da_chiamare'; }
+  $('scrim').hidden=false; $('lsheet').classList.add('open'); $('lsheet').setAttribute('aria-hidden','false');
+}
+function closeLead(){ $('lsheet').classList.remove('open'); $('lsheet').setAttribute('aria-hidden','true'); $('scrim').hidden=true; editLeadId=null; }
+async function saveLead(e){
+  e.preventDefault();
+  if(!sb||!canWrite){ toast('Accedi per modificare'); return; }
+  const f=$('lform');
+  const rec={ marca:f.marca.value.trim(), modello:f.modello.value.trim(), versione:f.versione.value.trim(),
+    prezzo:toNum(f.prezzo.value), anno:toNum(f.anno.value), km:toNum(f.km.value),
+    fonte:f.fonte.value.trim(), comune:f.comune.value.trim(), prov:f.prov.value.trim().toUpperCase(),
+    telefono:f.telefono.value.trim(), link:f.link.value.trim(),
+    commerciale:$('lf-chi').value, data_chiamata:$('lf-data').value, esito:$('lf-esito').value||'da_chiamare' };
+  if((rec.commerciale||(rec.esito&&rec.esito!=='da_chiamare')) && !rec.data_chiamata) rec.data_chiamata=todayISO();
+  if(!rec.marca && !rec.modello){ toast('Inserisci almeno marca o modello'); return; }
+  $('lSaveBtn').disabled=true;
+  try{ let error;
+    if(editLeadId){ ({error}=await sb.from('lead').update(rec).eq('id',editLeadId)); }
+    else { ({error}=await sb.from('lead').insert(rec)); }
+    if(error) throw error;
+    toast(editLeadId?'Annuncio aggiornato':'Annuncio aggiunto'); closeLead(); await loadLeads();
+  }catch(err){ toast('Errore: '+(err.message||'salvataggio non riuscito')); }
+  finally{ $('lSaveBtn').disabled=false; }
+}
+async function delLead(id){
+  if(pendingLDel!==id){ pendingLDel=id; toast('Tocca di nuovo Elimina per confermare'); setTimeout(()=>{if(pendingLDel===id)pendingLDel=null;},3500); return; }
+  pendingLDel=null;
+  try{ const {error}=await sb.from('lead').delete().eq('id',id); if(error) throw error; toast('Annuncio eliminato'); await loadLeads(); }
+  catch(err){ toast('Errore: '+(err.message||'eliminazione non riuscita')); }
+}
+function splitCsvLine(line,sep){ const out=[]; let cur='',q=false; for(let i=0;i<line.length;i++){ const ch=line[i]; if(q){ if(ch==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; } else { if(ch==='"') q=true; else if(ch===sep){ out.push(cur); cur=''; } else cur+=ch; } } out.push(cur); return out; }
+function parseCsvLeads(text){
+  text=text.replace(/^﻿/,''); const lines=text.split(/\r?\n/).filter(l=>l.trim().length); if(!lines.length) return [];
+  const sep=(lines[0].split(';').length>=lines[0].split(',').length)?';':',';
+  const head=splitCsvLine(lines[0],sep).map(h=>h.trim().toLowerCase());
+  const idx=n=>head.findIndex(h=>h===n);
+  const I={fonte:idx('fonte'),marca:idx('marca'),modello:idx('modello'),versione:idx('versione'),prezzo:idx('prezzo'),anno:idx('anno'),km:idx('km'),comune:idx('comune'),prov:idx('prov'),tel:idx('telefono'),link:idx('link'),pub:idx('pubblicato')};
+  const g=(c,i)=>i>=0&&c[i]!=null?String(c[i]).trim():'';
+  const out=[];
+  for(let n=1;n<lines.length;n++){ const c=splitCsvLine(lines[n],sep); const link=g(c,I.link); if(!link) continue;
+    out.push({ fonte:g(c,I.fonte), marca:g(c,I.marca), modello:g(c,I.modello), versione:g(c,I.versione),
+      prezzo:toNum(g(c,I.prezzo)), anno:toNum(g(c,I.anno)), km:toNum(g(c,I.km)),
+      comune:g(c,I.comune), prov:g(c,I.prov), telefono:g(c,I.tel), link, pubblicato:g(c,I.pub),
+      commerciale:'', data_chiamata:'', esito:'da_chiamare' }); }
+  return out;
+}
+async function importLeadsCsv(file){
+  if(!sb||!canWrite){ toast('Accedi per modificare'); return; }
+  let text; try{ text=await file.text(); }catch(_){ toast('File non leggibile'); return; }
+  const parsed=parseCsvLeads(text);
+  if(!parsed.length){ toast('CSV vuoto o colonne non riconosciute'); return; }
+  const existing=new Set(leads.map(l=>l.link).filter(Boolean));
+  const seen=new Set(); const uniq=[];
+  for(const p of parsed){ if(!p.link||existing.has(p.link)||seen.has(p.link)) continue; seen.add(p.link); uniq.push(p); }
+  if(!uniq.length){ toast('Tutti gli annunci erano già presenti'); return; }
+  toast('Importo '+uniq.length+' annunci…');
+  try{ for(let i=0;i<uniq.length;i+=200){ const {error}=await sb.from('lead').insert(uniq.slice(i,i+200)); if(error) throw error; }
+    toast(uniq.length+' nuovi annunci importati'); await loadLeads();
+  }catch(err){ toast('Errore import: '+(err.message||'')); }
+}
+async function loadLeads(){
+  if(!sb) return;
+  try{ const {data,error}=await sb.from('lead').select('*'); if(error) throw error; leads=data||[]; $('lErr').style.display='none'; if(currentView==='chiamate') renderLeads(); }
+  catch(err){ $('lErr').textContent='Errore chiamate: '+(err.message||err); $('lErr').style.display='flex'; }
+}
+/* eventi pagina Chiamate */
+$('lSub').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
+  lState.sub=b.dataset.s; [...$('lSub').children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  $('lView-elenco').hidden=lState.sub!=='elenco'; $('lView-report').hidden=lState.sub!=='report'; renderLeads(); });
+$('lSearch').addEventListener('input',e=>{ lState.q=e.target.value; renderLeads(); });
+$('lFiltroChi').addEventListener('change',e=>{ lState.chi=e.target.value; renderLeads(); });
+$('lFiltroEsito').addEventListener('change',e=>{ lState.esito=e.target.value; renderLeads(); });
+$('lImportBtn').onclick=()=>$('lFile').click();
+$('lFile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) importLeadsCsv(f); e.target.value=''; });
+$('lAddBtn').onclick=()=>openLead(null);
+$('lCloseSheet').onclick=closeLead; $('lCancelBtn').onclick=closeLead;
+$('lform').addEventListener('submit',saveLead);
+$('scrim').onclick=()=>{ closeSheet(); closeTrat(); closeLead(); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLead(); });
+document.addEventListener('change',e=>{ const el=e.target.closest('[data-lfield]'); if(el) saveLeadField(el.dataset.lid, el.dataset.lfield, el.value); });
+document.body.addEventListener('click',e=>{
+  const le=e.target.closest('[data-ledit]'); if(le){ openLead(leads.find(x=>x.id===le.dataset.ledit)); return; }
+  const ld=e.target.closest('[data-ldel]'); if(ld){ delLead(ld.dataset.ldel); return; }
+});
+
 /* ---------- Supabase + auth ---------- */
 function showLogin(msg,cls){ $('app').hidden=true; $('login').hidden=false;
   if(msg){ const m=$('loginMsg'); m.textContent=msg; m.className='login-msg '+(cls||''); } }
@@ -1111,15 +1443,17 @@ function subscribeRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'trattative'},()=>loadTrat()).subscribe(); }
   if(!rtAnn){ rtAnn=sb.channel('annunci-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'annunci'},()=>loadAnn()).subscribe(); }
+  if(!rtLead){ rtLead=sb.channel('lead-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'lead'},()=>loadLeads()).subscribe(); }
 }
 async function onSignedIn(){
   $('login').hidden=true; $('app').hidden=false; canWrite=true;
   $('loadBanner').style.display='flex';
-  await loadData(); loadTrat(); loadAnn(); subscribeRealtime();
+  await loadData(); loadTrat(); loadAnn(); loadLeads(); subscribeRealtime();
 }
-function onSignedOut(){ canWrite=false; items=[]; trattative=[]; annunci=[];
-  for(const ch of [rtChannel,rtTrat,rtAnn]){ if(ch){ try{sb.removeChannel(ch);}catch(e){} } }
-  rtChannel=rtTrat=rtAnn=null;
+function onSignedOut(){ canWrite=false; items=[]; trattative=[]; annunci=[]; leads=[];
+  for(const ch of [rtChannel,rtTrat,rtAnn,rtLead]){ if(ch){ try{sb.removeChannel(ch);}catch(e){} } }
+  rtChannel=rtTrat=rtAnn=rtLead=null;
   showLogin('','' ); }
 
 /* ---- login con email + password ---- */

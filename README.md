@@ -13,6 +13,7 @@ i tuoi dispositivi. Pensato per essere pubblicato su **GitHub Pages**.
 | `schema.sql` | Crea la tabella e le regole di sicurezza nel database |
 | `seed.sql` | Carica i tuoi 45 veicoli iniziali |
 | `schema-trattative-annunci.sql` | Crea le tabelle delle pagine **Trattative** e **Gestione annunci** |
+| `schema-chiamate.sql` | Crea la tabella della pagina **Chiamate** (ricerca auto) |
 | `.nojekyll` | Serve a GitHub Pages per pubblicare correttamente |
 
 ## Provvigioni (già configurate)
@@ -84,6 +85,19 @@ nel SQL Editor di Supabase (dopo `schema.sql`).
   segnala gli annunci da ruotare dopo 10 giorni e suggerisce quali veicoli inserire,
   ordinati per richiesta di mercato, con un prezzo d'annuncio consigliato. I prezzi sono
   stime dal prezzo di vendita: per il valore puntuale usa la valutazione di AutoScout24.
+
+## Pagina Chiamate (ricerca auto)
+Collega il tuo tool di **ricerca auto da privati** (cartella *Link Motors*, che produce
+i CSV in `output/`) al registro. Per attivarla esegui **una volta** `schema-chiamate.sql`
+nel SQL Editor di Supabase.
+
+- **Importa CSV**: carica un file `output/auto_privati_*.csv` (o `ultimo.csv`) del tool;
+  gli annunci entrano in elenco senza doppioni (chiave = link dell'annuncio).
+- **Elenco annunci**: per ogni annuncio scegli **commerciale** ed **esito** dai menu a
+  tendina (la **data** si compila da sola col giorno in cui assegni il commerciale).
+  Puoi anche aggiungere un'auto a mano col pulsante **Auto**.
+- **Per commerciale**: una tabella per ogni commerciale (Thomas, Roberta, Oussama…),
+  ordinata **giorno per giorno**, con quante auto sono state chiamate e il relativo esito.
 
 ### Nota privacy
 GitHub Pages serve pagine **pubbliche**: chiunque può aprire l'indirizzo del sito,
