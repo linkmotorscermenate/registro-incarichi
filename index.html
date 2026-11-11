@@ -342,6 +342,9 @@ tfoot .ant{color:var(--accent)}
 .day-list{list-style:none;margin:0;padding:0}
 .day-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;font-size:.82rem}
 .day-list .dl-car{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.flt-num{width:94px;padding:9px 11px;border:1px solid var(--hairline);border-radius:10px;background:var(--surface);color:var(--ink);font-size:.82rem;font-variant-numeric:tabular-nums}
+.flt-num:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.flt-count{font-size:.78rem;color:var(--muted);align-self:center;font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
 
 @media (max-width:860px){
   .kpis{grid-template-columns:1fr 1fr}
@@ -523,6 +526,16 @@ tfoot .ant{color:var(--accent)}
       </button>
       <input id="lFile" type="file" accept=".csv,text/csv" hidden>
     </div>
+    <div class="toolbar" id="lFilters">
+      <select class="sort" id="lfMarca" aria-label="Filtra marca"><option value="">Tutte le marche</option></select>
+      <select class="sort" id="lfModello" aria-label="Filtra modello"><option value="">Tutti i modelli</option></select>
+      <select class="sort" id="lfComune" aria-label="Filtra comune"><option value="">Tutti i comuni</option></select>
+      <input class="flt-num" id="lfPmin" inputmode="numeric" placeholder="€ min" aria-label="Prezzo minimo">
+      <input class="flt-num" id="lfPmax" inputmode="numeric" placeholder="€ max" aria-label="Prezzo massimo">
+      <input class="flt-num" id="lfKmMax" inputmode="numeric" placeholder="km max" aria-label="Km massimi">
+      <button class="ghost" id="lfReset" type="button">Azzera</button>
+      <span class="flt-count" id="lfCount"></span>
+    </div>
     <div class="banner warn" id="lErr"></div>
     <div class="table-wrap">
       <div class="scroll">
@@ -538,8 +551,8 @@ tfoot .ant{color:var(--accent)}
     <div class="cards" id="lCards"></div>
     <div class="empty" id="lEmpty" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      <h3>Nessun annuncio</h3>
-      <p>Importa il CSV della tua ricerca auto con “Importa CSV”, oppure aggiungine uno a mano.</p>
+      <h3 id="lEmptyTitle">Nessun annuncio</h3>
+      <p id="lEmptyMsg">Importa il CSV della tua ricerca auto con “Importa CSV”, oppure aggiungine uno a mano.</p>
     </div>
   </div>
 
@@ -1215,7 +1228,8 @@ document.body.addEventListener('click',e=>{
 });
 
 /* ========== Chiamate / Lead (ricerca auto) ========== */
-let leads=[], rtLead=null, editLeadId=null, lState={q:'',chi:'',esito:'',sub:'elenco'}, pendingLDel=null;
+let leads=[], rtLead=null, editLeadId=null, pendingLDel=null;
+let lState={q:'',chi:'',esito:'',sub:'elenco',marca:'',modello:'',comune:'',pmin:0,pmax:0,kmmax:0};
 const VENDITORI=['Thomas','Roberta'];
 const ESITI=[
   {v:'da_chiamare',l:'Da chiamare'},
@@ -1238,13 +1252,26 @@ function lFiltered(){
   let r=leads.slice();
   if(lState.chi) r=r.filter(l=>(l.commerciale||'')===lState.chi);
   if(lState.esito) r=r.filter(l=>(l.esito||'da_chiamare')===lState.esito);
+  if(lState.marca) r=r.filter(l=>(l.marca||'')===lState.marca);
+  if(lState.modello) r=r.filter(l=>(l.modello||'')===lState.modello);
+  if(lState.comune) r=r.filter(l=>(l.comune||'')===lState.comune);
+  if(lState.pmin) r=r.filter(l=>toNum(l.prezzo)>=lState.pmin);
+  if(lState.pmax) r=r.filter(l=>toNum(l.prezzo)>0 && toNum(l.prezzo)<=lState.pmax);
+  if(lState.kmmax) r=r.filter(l=>toNum(l.km)>0 && toNum(l.km)<=lState.kmmax);
   if(lState.q){ const q=lState.q.toLowerCase(); r=r.filter(l=>[l.marca,l.modello,l.versione,l.comune,l.prov,l.telefono].some(x=>String(x||'').toLowerCase().includes(q))); }
   r.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
   return r;
 }
+function distinct(getter,subset){ const s=new Set(); (subset||leads).forEach(l=>{ const v=getter(l); if(v) s.add(v); }); return [...s].sort((a,b)=>String(a).localeCompare(String(b),'it')); }
 function fillLeadFilters(){
   const fc=$('lFiltroChi'); fc.innerHTML=`<option value="">Tutti i commerciali</option>`+leadComms().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''); fc.value=lState.chi||'';
   const fe=$('lFiltroEsito'); if(fe.children.length<=1){ fe.innerHTML=`<option value="">Tutti gli esiti</option>`+ESITI.map(e=>`<option value="${e.v}">${esc(e.l)}</option>`).join(''); } fe.value=lState.esito||'';
+  const fm=$('lfMarca'); fm.innerHTML=`<option value="">Tutte le marche</option>`+distinct(l=>l.marca).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join(''); fm.value=lState.marca||'';
+  const baseMod=lState.marca?leads.filter(l=>(l.marca||'')===lState.marca):leads;
+  const modelli=distinct(l=>l.modello, baseMod);
+  if(lState.modello && !modelli.includes(lState.modello)) lState.modello='';
+  const fmo=$('lfModello'); fmo.innerHTML=`<option value="">Tutti i modelli</option>`+modelli.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join(''); fmo.value=lState.modello||'';
+  const fp=$('lfComune'); fp.innerHTML=`<option value="">Tutti i comuni</option>`+distinct(l=>l.comune).map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join(''); fp.value=lState.comune||'';
 }
 function telCell(l){ if(!l.telefono) return '<span style="color:var(--faint)">—</span>';
   return `<span class="telcell"><a href="tel:${esc(l.telefono)}">${esc(l.telefono)}</a><button type="button" class="copybtn" data-copy="${esc(l.telefono)}">Copia</button></span>`; }
@@ -1260,8 +1287,12 @@ function renderLeads(){
   renderLeadKpis(); fillLeadFilters();
   if(lState.sub==='report'){ renderLeadReport(); return; }
   const rows=lFiltered();
+  const anyF=lState.q||lState.chi||lState.esito||lState.marca||lState.modello||lState.comune||lState.pmin||lState.pmax||lState.kmmax;
+  $('lfCount').textContent = anyF ? `${rows.length} di ${leads.length}` : (leads.length?`${leads.length} annunci`:'');
   const tb=$('lTbody'), cards=$('lCards'); tb.innerHTML=''; cards.innerHTML='';
-  $('lEmpty').hidden=!(loaded && leads.length===0);
+  $('lEmpty').hidden=!(loaded && rows.length===0);
+  if(leads.length===0){ $('lEmptyTitle').textContent='Nessun annuncio'; $('lEmptyMsg').textContent='Importa il CSV della tua ricerca auto con “Importa CSV”, oppure aggiungine uno a mano.'; }
+  else { $('lEmptyTitle').textContent='Nessun risultato'; $('lEmptyMsg').textContent='Nessun annuncio corrisponde ai filtri. Modifica i filtri o premi “Azzera”.'; }
   for(const l of rows){
     const e=l.esito||'da_chiamare';
     const tr=document.createElement('tr');
@@ -1409,6 +1440,13 @@ $('lSub').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!
 $('lSearch').addEventListener('input',e=>{ lState.q=e.target.value; renderLeads(); });
 $('lFiltroChi').addEventListener('change',e=>{ lState.chi=e.target.value; renderLeads(); });
 $('lFiltroEsito').addEventListener('change',e=>{ lState.esito=e.target.value; renderLeads(); });
+$('lfMarca').addEventListener('change',e=>{ lState.marca=e.target.value; lState.modello=''; renderLeads(); });
+$('lfModello').addEventListener('change',e=>{ lState.modello=e.target.value; renderLeads(); });
+$('lfComune').addEventListener('change',e=>{ lState.comune=e.target.value; renderLeads(); });
+$('lfPmin').addEventListener('input',e=>{ lState.pmin=toNum(e.target.value); renderLeads(); });
+$('lfPmax').addEventListener('input',e=>{ lState.pmax=toNum(e.target.value); renderLeads(); });
+$('lfKmMax').addEventListener('input',e=>{ lState.kmmax=toNum(e.target.value); renderLeads(); });
+$('lfReset').addEventListener('click',()=>{ lState.marca=lState.modello=lState.comune=''; lState.pmin=lState.pmax=lState.kmmax=0; $('lfPmin').value=''; $('lfPmax').value=''; $('lfKmMax').value=''; renderLeads(); });
 $('lImportBtn').onclick=()=>$('lFile').click();
 $('lFile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) importLeadsCsv(f); e.target.value=''; });
 $('lAddBtn').onclick=()=>openLead(null);
