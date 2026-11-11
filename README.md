@@ -14,6 +14,7 @@ i tuoi dispositivi. Pensato per essere pubblicato su **GitHub Pages**.
 | `seed.sql` | Carica i tuoi 45 veicoli iniziali |
 | `schema-trattative-annunci.sql` | Crea le tabelle delle pagine **Trattative** e **Gestione annunci** |
 | `schema-chiamate.sql` | Crea la tabella della pagina **Chiamate** (ricerca auto) |
+| `comuni-coords.json` | Coordinate dei comuni italiani (per il filtro paese + raggio km) |
 | `.nojekyll` | Serve a GitHub Pages per pubblicare correttamente |
 
 ## Provvigioni (già configurate)
@@ -96,8 +97,10 @@ nel SQL Editor di Supabase.
 - **Elenco annunci**: per ogni annuncio scegli **commerciale** ed **esito** dai menu a
   tendina (la **data** si compila da sola col giorno in cui assegni il commerciale).
   Puoi anche aggiungere un'auto a mano col pulsante **Auto**.
-- **Per commerciale**: una tabella per ogni commerciale (Thomas, Roberta, Oussama…),
+- **Per commerciale**: una tabella per ogni commerciale (Thomas, Roberta…),
   ordinata **giorno per giorno**, con quante auto sono state chiamate e il relativo esito.
+- **Filtri** sull'elenco annunci: marca, modello, prezzo (min/max), km max e
+  **paese + raggio in km** (distanza calcolata dalle coordinate in `comuni-coords.json`).
 
 ### Nota privacy
 GitHub Pages serve pagine **pubbliche**: chiunque può aprire l'indirizzo del sito,

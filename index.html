@@ -529,7 +529,13 @@ tfoot .ant{color:var(--accent)}
     <div class="toolbar" id="lFilters">
       <select class="sort" id="lfMarca" aria-label="Filtra marca"><option value="">Tutte le marche</option></select>
       <select class="sort" id="lfModello" aria-label="Filtra modello"><option value="">Tutti i modelli</option></select>
-      <select class="sort" id="lfComune" aria-label="Filtra comune"><option value="">Tutti i comuni</option></select>
+      <input class="sort" id="lfPaese" list="l-paesi" placeholder="Paese (es. Como)" style="min-width:140px" aria-label="Paese di riferimento" autocomplete="off">
+      <select class="sort" id="lfRaggio" aria-label="Raggio in km">
+        <option value="0">Raggio…</option>
+        <option value="5">5 km</option><option value="10">10 km</option><option value="20">20 km</option>
+        <option value="30">30 km</option><option value="50">50 km</option><option value="75">75 km</option><option value="100">100 km</option>
+      </select>
+      <datalist id="l-paesi"></datalist>
       <input class="flt-num" id="lfPmin" inputmode="numeric" placeholder="€ min" aria-label="Prezzo minimo">
       <input class="flt-num" id="lfPmax" inputmode="numeric" placeholder="€ max" aria-label="Prezzo massimo">
       <input class="flt-num" id="lfKmMax" inputmode="numeric" placeholder="km max" aria-label="Km massimi">
@@ -1229,7 +1235,17 @@ document.body.addEventListener('click',e=>{
 
 /* ========== Chiamate / Lead (ricerca auto) ========== */
 let leads=[], rtLead=null, editLeadId=null, pendingLDel=null;
-let lState={q:'',chi:'',esito:'',sub:'elenco',marca:'',modello:'',comune:'',pmin:0,pmax:0,kmmax:0};
+let lState={q:'',chi:'',esito:'',sub:'elenco',marca:'',modello:'',paese:'',raggio:0,pmin:0,pmax:0,kmmax:0,_centro:null,_paeseNF:false};
+let COMUNI_COORD=null;
+function normComune(s){ return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
+function haversineKm(la1,lo1,la2,lo2){ const R=6371,toR=Math.PI/180; const dLa=(la2-la1)*toR,dLo=(lo2-lo1)*toR;
+  const a=Math.sin(dLa/2)**2+Math.cos(la1*toR)*Math.cos(la2*toR)*Math.sin(dLo/2)**2; return 2*R*Math.asin(Math.sqrt(a)); }
+function loadComuniCoord(){
+  fetch('comuni-coords.json').then(r=>r.ok?r.json():Promise.reject()).then(arr=>{
+    const m={}; for(const row of arr){ const k=normComune(row[0]); if(k && !(k in m)) m[k]=[row[1],row[2]]; }
+    COMUNI_COORD=m; if(currentView==='chiamate') renderLeads();
+  }).catch(()=>{ COMUNI_COORD={}; });
+}
 const VENDITORI=['Thomas','Roberta'];
 const ESITI=[
   {v:'da_chiamare',l:'Da chiamare'},
@@ -1254,7 +1270,8 @@ function lFiltered(){
   if(lState.esito) r=r.filter(l=>(l.esito||'da_chiamare')===lState.esito);
   if(lState.marca) r=r.filter(l=>(l.marca||'')===lState.marca);
   if(lState.modello) r=r.filter(l=>(l.modello||'')===lState.modello);
-  if(lState.comune) r=r.filter(l=>(l.comune||'')===lState.comune);
+  if(lState._centro){ const c=lState._centro, R=lState.raggio;
+    r=r.filter(l=>{ const co=COMUNI_COORD && COMUNI_COORD[normComune(l.comune)]; return co && haversineKm(c[0],c[1],co[0],co[1])<=R; }); }
   if(lState.pmin) r=r.filter(l=>toNum(l.prezzo)>=lState.pmin);
   if(lState.pmax) r=r.filter(l=>toNum(l.prezzo)>0 && toNum(l.prezzo)<=lState.pmax);
   if(lState.kmmax) r=r.filter(l=>toNum(l.km)>0 && toNum(l.km)<=lState.kmmax);
@@ -1271,7 +1288,7 @@ function fillLeadFilters(){
   const modelli=distinct(l=>l.modello, baseMod);
   if(lState.modello && !modelli.includes(lState.modello)) lState.modello='';
   const fmo=$('lfModello'); fmo.innerHTML=`<option value="">Tutti i modelli</option>`+modelli.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join(''); fmo.value=lState.modello||'';
-  const fp=$('lfComune'); fp.innerHTML=`<option value="">Tutti i comuni</option>`+distinct(l=>l.comune).map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join(''); fp.value=lState.comune||'';
+  const dl=$('l-paesi'); dl.innerHTML=distinct(l=>l.comune).map(p=>`<option value="${esc(p)}">`).join('');
 }
 function telCell(l){ if(!l.telefono) return '<span style="color:var(--faint)">—</span>';
   return `<span class="telcell"><a href="tel:${esc(l.telefono)}">${esc(l.telefono)}</a><button type="button" class="copybtn" data-copy="${esc(l.telefono)}">Copia</button></span>`; }
@@ -1286,9 +1303,17 @@ function renderLeadKpis(){
 function renderLeads(){
   renderLeadKpis(); fillLeadFilters();
   if(lState.sub==='report'){ renderLeadReport(); return; }
+  lState._centro=null; lState._paeseNF=false;
+  if(lState.paese && lState.raggio){
+    if(COMUNI_COORD){ const c=COMUNI_COORD[normComune(lState.paese)]; if(c) lState._centro=c; else lState._paeseNF=true; }
+  }
   const rows=lFiltered();
-  const anyF=lState.q||lState.chi||lState.esito||lState.marca||lState.modello||lState.comune||lState.pmin||lState.pmax||lState.kmmax;
-  $('lfCount').textContent = anyF ? `${rows.length} di ${leads.length}` : (leads.length?`${leads.length} annunci`:'');
+  const anyF=lState.q||lState.chi||lState.esito||lState.marca||lState.modello||lState._centro||lState.pmin||lState.pmax||lState.kmmax;
+  let lbl = anyF ? `${rows.length} di ${leads.length}` : (leads.length?`${leads.length} annunci`:'');
+  if(lState._centro) lbl+=` · entro ${lState.raggio} km da ${lState.paese}`;
+  else if(lState._paeseNF) lbl+=` · paese non trovato`;
+  else if(lState.paese && lState.raggio && !COMUNI_COORD) lbl+=` · carico comuni…`;
+  $('lfCount').textContent = lbl;
   const tb=$('lTbody'), cards=$('lCards'); tb.innerHTML=''; cards.innerHTML='';
   $('lEmpty').hidden=!(loaded && rows.length===0);
   if(leads.length===0){ $('lEmptyTitle').textContent='Nessun annuncio'; $('lEmptyMsg').textContent='Importa il CSV della tua ricerca auto con “Importa CSV”, oppure aggiungine uno a mano.'; }
@@ -1442,11 +1467,13 @@ $('lFiltroChi').addEventListener('change',e=>{ lState.chi=e.target.value; render
 $('lFiltroEsito').addEventListener('change',e=>{ lState.esito=e.target.value; renderLeads(); });
 $('lfMarca').addEventListener('change',e=>{ lState.marca=e.target.value; lState.modello=''; renderLeads(); });
 $('lfModello').addEventListener('change',e=>{ lState.modello=e.target.value; renderLeads(); });
-$('lfComune').addEventListener('change',e=>{ lState.comune=e.target.value; renderLeads(); });
+$('lfPaese').addEventListener('input',e=>{ lState.paese=e.target.value.trim(); renderLeads(); });
+$('lfRaggio').addEventListener('change',e=>{ lState.raggio=toNum(e.target.value); renderLeads(); });
 $('lfPmin').addEventListener('input',e=>{ lState.pmin=toNum(e.target.value); renderLeads(); });
 $('lfPmax').addEventListener('input',e=>{ lState.pmax=toNum(e.target.value); renderLeads(); });
 $('lfKmMax').addEventListener('input',e=>{ lState.kmmax=toNum(e.target.value); renderLeads(); });
-$('lfReset').addEventListener('click',()=>{ lState.marca=lState.modello=lState.comune=''; lState.pmin=lState.pmax=lState.kmmax=0; $('lfPmin').value=''; $('lfPmax').value=''; $('lfKmMax').value=''; renderLeads(); });
+$('lfReset').addEventListener('click',()=>{ lState.marca=lState.modello=lState.paese=''; lState.raggio=lState.pmin=lState.pmax=lState.kmmax=0; $('lfPmin').value=''; $('lfPmax').value=''; $('lfKmMax').value=''; $('lfPaese').value=''; $('lfRaggio').value='0'; renderLeads(); });
+loadComuniCoord();
 $('lImportBtn').onclick=()=>$('lFile').click();
 $('lFile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) importLeadsCsv(f); e.target.value=''; });
 $('lAddBtn').onclick=()=>openLead(null);
