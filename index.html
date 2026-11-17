@@ -76,11 +76,11 @@ input,select{font-family:inherit}
 
 /* ---- kpi row ---- */
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.kpi{background:var(--surface-2);border:1px solid var(--hairline);border-radius:12px;padding:12px 14px;
-  display:flex;flex-direction:column;gap:3px;min-width:0}
+.kpi{background:var(--surface-2);border:1px solid var(--hairline);border-radius:12px;padding:9px 12px;
+  display:flex;flex-direction:column;gap:2px;min-width:0}
 .kpi .lab{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);
   font-weight:600;display:flex;align-items:center;gap:6px}
-.kpi .val{font-family:var(--font-display);font-weight:800;font-size:1.32rem;letter-spacing:-.02em;
+.kpi .val{font-family:var(--font-display);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;
   font-variant-numeric:tabular-nums}
 .kpi .sub{font-size:.7rem;color:var(--faint);font-variant-numeric:tabular-nums}
 .kpi.net .val{color:var(--petrol)}
@@ -285,8 +285,8 @@ tfoot .ant{color:var(--accent)}
 .groups{display:grid;grid-template-columns:1fr;gap:16px}
 @media(min-width:900px){.groups{grid-template-columns:1fr 1fr}}
 .grp-card{background:var(--surface);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
-.grp-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--hairline);background:var(--surface-2)}
-.grp-head h3{font-size:.98rem;font-weight:800;flex:1}
+.grp-head{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--hairline);background:var(--surface-2)}
+.grp-head h3{font-size:.92rem;font-weight:800;flex:1}
 .grp-head .count{font-family:var(--font-mono);font-weight:700;font-size:.88rem;color:var(--muted)}
 .grp-head .count.full{color:var(--good)}
 .grp-head .count.over{color:var(--accent)}
@@ -335,13 +335,15 @@ tfoot .ant{color:var(--accent)}
 .esito.appuntamento{background:var(--petrol-soft);color:var(--petrol)}
 .esito.acquisita{background:var(--accent-soft);color:var(--accent)}
 .esito.persa{background:var(--surface-3);color:var(--faint)}
-.day-block{padding:2px 14px 10px}
-.day-head{display:flex;justify-content:space-between;align-items:center;padding:9px 0 6px;border-bottom:1px solid var(--hairline);margin-bottom:6px}
-.day-head b{font-size:.86rem;font-variant-numeric:tabular-nums}
-.day-head span{font-size:.73rem;color:var(--muted);font-weight:600}
+.day-block{padding:0 12px 6px}
+.day-head{display:flex;justify-content:space-between;align-items:center;padding:6px 0 4px;border-bottom:1px solid var(--hairline);margin-bottom:3px}
+.day-head b{font-size:.8rem;font-variant-numeric:tabular-nums}
+.day-head span{font-size:.7rem;color:var(--muted);font-weight:600}
 .day-list{list-style:none;margin:0;padding:0}
-.day-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;font-size:.82rem}
-.day-list .dl-car{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.day-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 0;font-size:.8rem}
+.day-list .dl-car{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.dl-right{display:flex;align-items:center;gap:8px;flex:none}
+.dl-right .cellsel{padding:5px 7px;font-size:.76rem}
 .flt-num{width:94px;padding:9px 11px;border:1px solid var(--hairline);border-radius:10px;background:var(--surface);color:var(--ink);font-size:.82rem;font-variant-numeric:tabular-nums}
 .flt-num:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
 .flt-count{font-size:.78rem;color:var(--muted);align-self:center;font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
@@ -1382,7 +1384,7 @@ function renderLeadReport(){
     let html=`<div class="grp-head"><h3>${esc(chi)}</h3><span class="count">${list.length} auto · ${days.length} giorni</span></div>`;
     for(const d of days){ const its=byDay[d];
       html+=`<div class="day-block"><div class="day-head"><b>${d==='0000-00-00'?'Senza data':esc(itDate(d))}</b><span>${its.length} auto chiamate</span></div><ul class="day-list">`;
-      for(const l of its){ html+=`<li><span class="dl-car">${esc(carTitle(l))}${l.comune?(' <span style="color:var(--faint)">· '+esc(l.comune)+'</span>'):''}</span><span class="esito ${esitoClass(l.esito)}">${esc(esitoLabel(l.esito))}</span></li>`; }
+      for(const l of its){ html+=`<li><span class="dl-car">${esc(carTitle(l))}${l.comune?(' <span style="color:var(--faint)">· '+esc(l.comune)+'</span>'):''}</span><span class="dl-right">${l.link?`<a class="fonte-link" href="${esc(l.link)}" target="_blank" rel="noopener">${esc(l.fonte||'Vedi')} ↗</a>`:''}<select class="cellsel" data-lfield="esito" data-lid="${l.id}">${esitoOptions(l.esito)}</select></span></li>`; }
       html+='</ul></div>';
     }
     card.innerHTML=html; wrap.appendChild(card);
