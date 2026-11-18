@@ -14,6 +14,7 @@ i tuoi dispositivi. Pensato per essere pubblicato su **GitHub Pages**.
 | `seed.sql` | Carica i tuoi 45 veicoli iniziali |
 | `schema-trattative-annunci.sql` | Crea le tabelle delle pagine **Trattative** e **Gestione annunci** |
 | `schema-chiamate.sql` | Crea la tabella della pagina **Chiamate** (ricerca auto) |
+| `schema-incassi.sql` | Crea la tabella della sezione **Incassi** (provvigioni venditori) |
 | `comuni-coords.json` | Coordinate dei comuni italiani (per il filtro paese + raggio km) |
 | `.nojekyll` | Serve a GitHub Pages per pubblicare correttamente |
 
@@ -101,6 +102,21 @@ nel SQL Editor di Supabase.
   ordinata **giorno per giorno**, con quante auto sono state chiamate e il relativo esito.
 - **Filtri** sull'elenco annunci: marca, modello, prezzo (min/max), km max e
   **paese + raggio in km** (distanza calcolata dalle coordinate in `comuni-coords.json`).
+
+## Sezione Incassi (provvigioni venditori)
+Un CRM con un riquadro per ogni commerciale: cliccandolo si apre il grafico mese
+per mese delle **provvigioni lorde** e **nette** generate, con le barre
+dell'**incassato netto**. Per attivarla esegui **una volta** `schema-incassi.sql`
+nel SQL Editor di Supabase, poi usa **Vendita** per registrare prezzo auto (IVA
+inclusa) e margini caricati al cliente su garanzia / finanziamento / trapasso.
+
+Calcolo provvigioni, a scaglioni **sul numero di vendite del mese** del venditore:
+- 1ª–5ª vendita → **20%** sull'imponibile auto (prezzo ÷ 1,22) + **25%** sul margine netto
+- 6ª–10ª → **25%** auto + **30%** margine
+- 11ª in poi → **30%** auto + **35%** margine
+
+La **lorda** applica le percentuali ai valori IVA inclusa; la **netta** ai valori
+netti (= lorda ÷ 1,22). I margini sono **solo il ricarico** applicato al cliente.
 
 ### Nota privacy
 GitHub Pages serve pagine **pubbliche**: chiunque può aprire l'indirizzo del sito,

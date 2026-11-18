@@ -199,6 +199,38 @@ tfoot .gross{color:var(--accent)}
   display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease;
   box-shadow:-20px 0 50px -20px rgba(0,0,0,.4)}
 .sheet.open{transform:translateX(0)}
+.sheet.sheet-wide{width:min(720px,100%)}
+/* ---- Incassi ---- */
+.inc-hint{color:var(--muted);font-size:.82rem;margin:0 0 14px}
+.inc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.inc-card{background:var(--surface);border:1px solid var(--hairline);border-radius:14px;box-shadow:var(--shadow);
+  padding:15px 16px;cursor:pointer;text-align:left;transition:border-color .15s,transform .05s;display:flex;flex-direction:column;gap:3px}
+.inc-card:hover{border-color:var(--petrol)}
+.inc-card:active{transform:scale(.995)}
+.inc-card .ic-name{font-weight:800;font-size:1.02rem;display:flex;align-items:center;gap:8px}
+.inc-card .ic-ava{width:30px;height:30px;border-radius:50%;background:var(--petrol-soft);color:var(--petrol);display:grid;place-items:center;font-weight:800;font-size:.85rem;flex:none}
+.inc-card .ic-net{font-size:1.5rem;font-weight:800;color:var(--petrol);font-variant-numeric:tabular-nums;margin-top:6px;letter-spacing:-.01em}
+.inc-card .ic-lab{font-size:.68rem;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.inc-card .ic-meta{display:flex;gap:12px;margin-top:8px;font-size:.76rem;color:var(--muted)}
+.inc-card .ic-meta b{color:var(--ink);font-variant-numeric:tabular-nums}
+.inc-card .ic-spark{margin-top:10px}
+.chart-wrap{background:var(--surface-2);border:1px solid var(--hairline);border-radius:14px;padding:14px 12px 8px;margin-bottom:16px}
+.chart-legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 2px 8px;font-size:.76rem;color:var(--muted)}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px}
+.chart-legend i{width:14px;height:0;border-top:3px solid currentColor;border-radius:2px}
+.chart-legend i.bar{height:11px;border-top:none;border-radius:2px;width:11px}
+.inc-mini{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.inc-mini .m{flex:1;min-width:120px;background:var(--surface-2);border:1px solid var(--hairline);border-radius:11px;padding:9px 12px}
+.inc-mini .m .v{font-size:1.12rem;font-weight:800;font-variant-numeric:tabular-nums;display:block}
+.inc-mini .m .k{font-size:.66rem;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.inc-mini .m.net .v{color:var(--petrol)} .inc-mini .m.gross .v{color:var(--accent)}
+.vtab-wrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:12px;background:var(--surface);-webkit-overflow-scrolling:touch}
+.vtab{width:100%;border-collapse:collapse;font-size:.8rem}
+.vtab th,.vtab td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--hairline);white-space:nowrap}
+.vtab th{font-size:.66rem;text-transform:uppercase;letter-spacing:.03em;color:var(--faint);font-weight:700}
+.vtab td.r,.vtab th.r{text-align:right;font-variant-numeric:tabular-nums}
+.vtab .vt-act{display:flex;gap:4px;justify-content:flex-end}
+.inc-sub{font-size:.8rem;font-weight:800;margin:4px 2px 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
 .sheet-head{padding:18px 20px;padding-top:max(18px,env(safe-area-inset-top,0px));border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:12px}
 .sheet-head h2{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;flex:1}
 .sheet-body{overflow-y:auto;padding:18px 20px;flex:1;padding-right:max(20px,env(safe-area-inset-right,0px))}
@@ -441,6 +473,7 @@ tfoot .ant{color:var(--accent)}
       <button type="button" data-v="trattative" aria-pressed="false">Trattative</button>
       <button type="button" data-v="annunci" aria-pressed="false">Gestione annunci</button>
       <button type="button" data-v="chiamate" aria-pressed="false">Chiamate</button>
+      <button type="button" data-v="incassi" aria-pressed="false">Incassi</button>
     </nav>
     <div class="kpis" id="kpiRow">
       <div class="kpi"><span class="lab">Veicoli</span><span class="val num" id="kVeh">—</span><span class="sub" id="kVehSub">in registro</span></div>
@@ -629,6 +662,27 @@ tfoot .ant{color:var(--accent)}
     <div class="groups" id="leadReport"></div>
   </div>
 </section>
+
+<!-- ===== Incassi (provvigioni venditori) ===== -->
+<section class="view" id="view-incassi" hidden>
+  <div class="kpis" id="incKpis" style="margin-bottom:16px">
+    <div class="kpi net"><span class="lab"><span class="dot" style="background:var(--petrol)"></span>Incassato netto</span><span class="val num" id="incKNet">—</span><span class="sub" id="incKNetSub">anno in corso</span></div>
+    <div class="kpi gross"><span class="lab"><span class="dot" style="background:var(--accent)"></span>Provvigioni lorde</span><span class="val num" id="incKGross">—</span><span class="sub">generate nell'anno</span></div>
+    <div class="kpi"><span class="lab">Vendite</span><span class="val num" id="incKCount">—</span><span class="sub">nell'anno</span></div>
+    <div class="kpi"><span class="lab">Questo mese</span><span class="val num" id="incKMonth">—</span><span class="sub">incassato netto</span></div>
+  </div>
+  <div class="toolbar">
+    <select class="sort" id="incYear" aria-label="Anno"></select>
+    <span style="flex:1"></span>
+    <button class="btn-primary" id="addVenBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Vendita</span>
+    </button>
+  </div>
+  <div class="banner warn" id="incErr"></div>
+  <p class="inc-hint">Clicca un commerciale per vedere il grafico mese per mese delle provvigioni lorde e nette e l'incassato.</p>
+  <div class="inc-grid" id="incCards"></div>
+</section>
 </main>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -767,6 +821,59 @@ tfoot .ant{color:var(--accent)}
   <div class="sheet-foot">
     <button type="button" class="ghost" id="lCancelBtn" style="justify-content:center">Annulla</button>
     <button type="submit" form="lform" class="btn-primary" id="lSaveBtn">Salva</button>
+  </div>
+</aside>
+
+<!-- Scheda dettaglio commerciale (grafico incassi) -->
+<aside class="sheet sheet-wide" id="isheet" aria-hidden="true" aria-label="Incassi commerciale">
+  <div class="sheet-head">
+    <h2 id="isheetTitle">Commerciale</h2>
+    <button class="icon-btn" id="iCloseSheet" aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body" id="ibody"></div>
+  <div class="sheet-foot">
+    <button type="button" class="ghost" id="iCloseBtn" style="justify-content:center">Chiudi</button>
+    <button type="button" class="btn-primary" id="iAddVenBtn">Aggiungi vendita</button>
+  </div>
+</aside>
+
+<!-- Form vendita -->
+<aside class="sheet" id="vsheet" aria-hidden="true" aria-label="Scheda vendita">
+  <div class="sheet-head">
+    <h2 id="vsheetTitle">Nuova vendita</h2>
+    <button class="icon-btn" id="vCloseSheet" aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <form class="sheet-body" id="vform">
+    <div class="grp">
+      <div class="grp-lab">Vendita</div>
+      <div class="fields">
+        <div class="f"><label for="vf-chi">Commerciale</label><select id="vf-chi" name="commerciale"></select></div>
+        <div class="f"><label for="vf-data">Data vendita</label><input id="vf-data" name="data" type="date"></div>
+        <div class="f wide"><label for="vf-veicolo">Veicolo (descrizione)</label><input id="vf-veicolo" name="veicolo" placeholder="es. Fiat Panda · targa"></div>
+        <div class="f wide"><label for="vf-prezzo">Prezzo vendita auto (€, IVA inclusa)</label><input id="vf-prezzo" name="prezzo_vendita" inputmode="numeric" required placeholder="es. 12000"></div>
+      </div>
+    </div>
+    <div class="grp">
+      <div class="grp-lab">Margini caricati al cliente (solo il ricarico, IVA inclusa)</div>
+      <div class="fields">
+        <div class="f"><label for="vf-gar">Margine garanzia (€)</label><input id="vf-gar" name="margine_garanzia" inputmode="numeric" placeholder="0"></div>
+        <div class="f"><label for="vf-fin">Margine finanziamento (€)</label><input id="vf-fin" name="margine_finanziamento" inputmode="numeric" placeholder="0"></div>
+        <div class="f"><label for="vf-trap">Margine trapasso (€)</label><input id="vf-trap" name="margine_trapasso" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <div class="calc" id="vcalc">
+        <div class="calc-row"><span id="vc-band">Scaglione del mese</span><b id="vc-rates">—</b></div>
+        <div class="calc-row"><span>Provvigione lorda</span><b class="num" id="vc-gross">—</b></div>
+        <div class="calc-row lead"><span>Provvigione netta (incassato)</span><b class="num" id="vc-net">—</b></div>
+      </div>
+    </div>
+  </form>
+  <div class="sheet-foot">
+    <button type="button" class="ghost" id="vCancelBtn" style="justify-content:center">Annulla</button>
+    <button type="submit" form="vform" class="btn-primary" id="vSaveBtn">Salva</button>
   </div>
 </aside>
 
@@ -1045,7 +1152,7 @@ $('logoutBtn').onclick=async()=>{ if(sb) await sb.auth.signOut(); };
 let currentView='registro';
 function setView(v){
   currentView=v;
-  ['registro','trattative','annunci','chiamate'].forEach(x=>{ const el=$('view-'+x); if(el) el.hidden = (x!==v); });
+  ['registro','trattative','annunci','chiamate','incassi'].forEach(x=>{ const el=$('view-'+x); if(el) el.hidden = (x!==v); });
   [...$('viewnav').children].forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===v)));
   const reg=(v==='registro');
   $('kpiRow').hidden=!reg; $('addBtn').hidden=!reg; $('exportBtn').hidden=!reg;
@@ -1053,6 +1160,7 @@ function setView(v){
   if(v==='trattative') renderTrat();
   if(v==='annunci') renderAnn();
   if(v==='chiamate') renderLeads();
+  if(v==='incassi') renderInc();
 }
 $('viewnav').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) setView(b.dataset.v); });
 
@@ -1655,6 +1763,172 @@ async function loadData(){
   }catch(err){ loaded=true; $('loadBanner').style.display='none';
     $('errBanner').textContent='Errore nel caricamento: '+(err.message||err); $('errBanner').style.display='flex'; render(); }
 }
+/* ========== Incassi (provvigioni venditori) ========== */
+let vendite=[], rtVen=null, editVenId=null, incSelName=null, pendingVDel=null;
+let incState={year:new Date().getFullYear()};
+const SCAGLIONI=[{max:5,auto:0.20,marg:0.25},{max:10,auto:0.25,marg:0.30},{max:Infinity,auto:0.30,marg:0.35}];
+function bandFor(n){ return SCAGLIONI.find(s=>n<=s.max); }
+function venMonthKey(v){ return String(v.data||'').slice(0,7); }
+function venMarginiGross(v){ return toNum(v.margine_garanzia)+toNum(v.margine_finanziamento)+toNum(v.margine_trapasso); }
+function computeVendite(){
+  const groups={};
+  for(const v of vendite){ const k=(v.commerciale||'')+'|'+venMonthKey(v); (groups[k]=groups[k]||[]).push(v); }
+  const res={};
+  for(const k in groups){
+    const arr=groups[k].slice().sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')) || String(a.created_at||'').localeCompare(String(b.created_at||'')) );
+    arr.forEach((v,i)=>{ const ord=i+1, band=bandFor(ord); const prezzo=toNum(v.prezzo_vendita), marg=venMarginiGross(v);
+      const lorda=band.auto*prezzo+band.marg*marg, netta=band.auto*(prezzo/1.22)+band.marg*(marg/1.22);
+      res[v.id]={ord,band,lorda,netta,month:venMonthKey(v),comm:v.commerciale||''}; });
+  }
+  return res;
+}
+function incNames(){ const s=new Set(VENDITORI); vendite.forEach(v=>{ if(v.commerciale) s.add(v.commerciale); }); return [...s]; }
+function incYears(){ const s=new Set([incState.year]); vendite.forEach(v=>{ const y=parseInt(String(v.data||'').slice(0,4)); if(y) s.add(y); }); return [...s].sort((a,b)=>b-a); }
+function monthlyFor(name,year){ const comp=computeVendite();
+  const months=Array.from({length:12},()=>({lorda:0,netta:0,count:0}));
+  for(const v of vendite){ if((v.commerciale||'')!==name) continue; const y=parseInt(String(v.data||'').slice(0,4)); if(y!==year) continue;
+    const mm=parseInt(String(v.data||'').slice(5,7))-1; if(mm<0||mm>11) continue; const c=comp[v.id]; if(!c) continue;
+    months[mm].lorda+=c.lorda; months[mm].netta+=c.netta; months[mm].count++; }
+  return months;
+}
+function niceMax(v){ if(v<=0) return 100; const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; const step=n<=1?1:n<=2?2:n<=5?5:10; return step*p; }
+function sparkSVG(ms){ const W=220,H=34,maxV=Math.max(1,...ms.map(x=>x.netta)); const x=m=>(m+0.5)*(W/12), y=v=>H-2-(H-6)*(v/maxV);
+  const bars=ms.map((mo,m)=> mo.netta>0?`<rect x="${(x(m)-6).toFixed(1)}" y="${y(mo.netta).toFixed(1)}" width="12" height="${(H-2-y(mo.netta)).toFixed(1)}" rx="1.5" fill="var(--petrol)" opacity=".2"/>`:'').join('');
+  const pts=ms.map((mo,m)=>`${x(m).toFixed(1)},${y(mo.netta).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="none" style="display:block;height:34px">${bars}<polyline points="${pts}" fill="none" stroke="var(--petrol)" stroke-width="1.6"/></svg>`;
+}
+function incChartSVG(ms){
+  const W=680,H=260,padL=52,padR=12,padT=12,padB=26,plotW=W-padL-padR,plotH=H-padT-padB;
+  const maxV=niceMax(Math.max(1,...ms.map(x=>x.lorda)));
+  const x=m=>padL+(m+0.5)*(plotW/12), y=v=>padT+plotH*(1-v/maxV);
+  let g='';
+  for(let i=0;i<=4;i++){ const val=maxV*i/4, yy=padT+plotH*(1-i/4);
+    g+=`<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="var(--hairline)" stroke-width="1"/>`;
+    g+=`<text x="${padL-6}" y="${(yy+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--faint)">${fmtEur0.format(val)}</text>`; }
+  const bw=(plotW/12)*0.46; let bars='';
+  ms.forEach((mo,m)=>{ if(mo.netta<=0) return; const bx=x(m)-bw/2, by=y(mo.netta), bh=padT+plotH-by;
+    bars+=`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,bh).toFixed(1)}" rx="2" fill="var(--petrol)" opacity=".22"><title>${MESI[m]}: incassato ${fmtEur0.format(mo.netta)}</title></rect>`; });
+  const line=(key,color)=>{ const pts=ms.map((mo,m)=>`${x(m).toFixed(1)},${y(mo[key]).toFixed(1)}`).join(' ');
+    const dots=ms.map((mo,m)=> mo.count?`<circle cx="${x(m).toFixed(1)}" cy="${y(mo[key]).toFixed(1)}" r="2.6" fill="${color}"><title>${MESI[m]}: ${fmtEur0.format(mo[key])}</title></circle>`:'').join('');
+    return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}`; };
+  const xl=ms.map((mo,m)=>`<text x="${x(m).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="9" fill="var(--faint)">${MESI[m]}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet" role="img" style="display:block">${g}${bars}${line('lorda','var(--accent)')}${line('netta','var(--petrol)')}${xl}</svg>`;
+}
+function renderInc(){
+  const ys=incYears(); const sel=$('incYear'); sel.innerHTML=ys.map(y=>`<option value="${y}">${y}</option>`).join(''); sel.value=incState.year;
+  const names=incNames(), year=incState.year, nowY=new Date().getFullYear(), curM=new Date().getMonth();
+  let tN=0,tG=0,tC=0,tM=0;
+  const grid=$('incCards'); grid.innerHTML='';
+  for(const name of names){
+    const ms=monthlyFor(name,year); const tot=ms.reduce((a,x)=>({l:a.l+x.lorda,n:a.n+x.netta,c:a.c+x.count}),{l:0,n:0,c:0});
+    tN+=tot.n; tG+=tot.l; tC+=tot.c; if(year===nowY) tM+=ms[curM].netta;
+    const card=document.createElement('button'); card.type='button'; card.className='inc-card'; card.dataset.name=name;
+    card.innerHTML=`<div class="ic-name"><span class="ic-ava">${esc(name.slice(0,1).toUpperCase())}</span>${esc(name)}</div>
+      <div class="ic-lab">Incassato netto ${year}</div>
+      <div class="ic-net">${fmtEur0.format(tot.n)}</div>
+      <div class="ic-meta"><span>Lordo <b>${fmtEur0.format(tot.l)}</b></span><span>Vendite <b>${tot.c}</b></span></div>
+      <div class="ic-spark">${sparkSVG(ms)}</div>`;
+    grid.appendChild(card);
+  }
+  $('incKNet').textContent=fmtEur0.format(tN); $('incKNetSub').textContent='anno '+year;
+  $('incKGross').textContent=fmtEur0.format(tG); $('incKCount').textContent=tC;
+  $('incKMonth').textContent = year===nowY ? fmtEur0.format(tM) : '—';
+}
+const SVG_EDIT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+const SVG_DEL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+function openIncDetail(name){
+  incSelName=name; const year=incState.year;
+  $('isheetTitle').textContent=name+' · '+year;
+  const ms=monthlyFor(name,year); const tot=ms.reduce((a,x)=>({l:a.l+x.lorda,n:a.n+x.netta,c:a.c+x.count}),{l:0,n:0,c:0});
+  const comp=computeVendite();
+  const vs=vendite.filter(v=>(v.commerciale||'')===name && parseInt(String(v.data||'').slice(0,4))===year)
+    .sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')) || String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  const rows=vs.map(v=>{ const c=comp[v.id]||{}; return `<tr>
+      <td>${esc(itDate(v.data)||'—')}</td><td>${esc(v.veicolo||'—')}</td>
+      <td class="r">${fmtEur0.format(toNum(v.prezzo_vendita))}</td>
+      <td class="r">${c.ord?('#'+c.ord):'—'}</td>
+      <td class="r">${fmtEur0.format(c.lorda||0)}</td><td class="r">${fmtEur0.format(c.netta||0)}</td>
+      <td><div class="vt-act"><button class="icon-btn" data-vedit="${v.id}" aria-label="Modifica">${SVG_EDIT}</button><button class="icon-btn del" data-vdel="${v.id}" aria-label="Elimina">${SVG_DEL}</button></div></td></tr>`; }).join('');
+  $('ibody').innerHTML=`
+    <div class="inc-mini">
+      <div class="m net"><span class="v">${fmtEur0.format(tot.n)}</span><span class="k">Incassato netto</span></div>
+      <div class="m gross"><span class="v">${fmtEur0.format(tot.l)}</span><span class="k">Provv. lorde</span></div>
+      <div class="m"><span class="v">${tot.c}</span><span class="k">Vendite ${year}</span></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-legend"><span style="color:var(--accent)"><i></i>Provv. lorda</span><span style="color:var(--petrol)"><i></i>Provv. netta</span><span style="color:var(--petrol)"><i class="bar"></i>Incassato netto</span></div>
+      ${incChartSVG(ms)}
+    </div>
+    <div class="inc-sub">Vendite ${year}</div>
+    ${vs.length?`<div class="vtab-wrap"><table class="vtab"><thead><tr><th>Data</th><th>Veicolo</th><th class="r">Prezzo</th><th class="r">N°</th><th class="r">Lorda</th><th class="r">Netta</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="inc-hint">Nessuna vendita per ${year}. Usa “Aggiungi vendita”.</p>`}`;
+  $('scrim').hidden=false; $('isheet').classList.add('open'); $('isheet').setAttribute('aria-hidden','false');
+}
+function closeIncDetail(){ $('isheet').classList.remove('open'); $('isheet').setAttribute('aria-hidden','true'); if($('vsheet').getAttribute('aria-hidden')!=='false') $('scrim').hidden=true; incSelName=null; }
+function fillVenChi(selv){ $('vf-chi').innerHTML=incNames().map(n=>`<option value="${esc(n)}"${n===selv?' selected':''}>${esc(n)}</option>`).join(''); }
+function openVen(v){
+  editVenId=v?v.id:null;
+  $('vsheetTitle').textContent=v?'Modifica vendita':'Nuova vendita';
+  const f=$('vform'); f.reset();
+  fillVenChi(v?v.commerciale:(incSelName||VENDITORI[0]));
+  $('vf-data').value=v?(v.data||todayISO()):todayISO();
+  if(v){ $('vf-veicolo').value=v.veicolo||''; $('vf-prezzo').value=v.prezzo_vendita!=null?v.prezzo_vendita:''; $('vf-gar').value=v.margine_garanzia||''; $('vf-fin').value=v.margine_finanziamento||''; $('vf-trap').value=v.margine_trapasso||''; }
+  vLiveCalc();
+  $('scrim').hidden=false; $('vsheet').classList.add('open'); $('vsheet').setAttribute('aria-hidden','false');
+}
+function closeVen(){ $('vsheet').classList.remove('open'); $('vsheet').setAttribute('aria-hidden','true'); if($('isheet').getAttribute('aria-hidden')!=='false') $('scrim').hidden=true; editVenId=null; }
+function vLiveCalc(){
+  const chi=$('vf-chi').value, data=$('vf-data').value||todayISO();
+  const prezzo=toNum($('vf-prezzo').value), marg=toNum($('vf-gar').value)+toNum($('vf-fin').value)+toNum($('vf-trap').value);
+  const mk=String(data).slice(0,7);
+  const others=vendite.filter(v=>v.id!==editVenId && (v.commerciale||'')===chi && venMonthKey(v)===mk);
+  let ord=others.length+1;
+  if(editVenId){ const comp=computeVendite(); const c=comp[editVenId]; if(c && c.month===mk && c.comm===chi) ord=c.ord; }
+  const band=bandFor(ord);
+  const lorda=band.auto*prezzo+band.marg*marg, netta=band.auto*(prezzo/1.22)+band.marg*(marg/1.22);
+  $('vc-band').textContent=`Vendita n°${ord} del mese`;
+  $('vc-rates').textContent=`auto ${Math.round(band.auto*100)}% · margini ${Math.round(band.marg*100)}%`;
+  $('vc-gross').textContent=fmtEur2.format(lorda); $('vc-net').textContent=fmtEur2.format(netta);
+}
+async function saveVen(e){ e.preventDefault();
+  if(!sb||!canWrite){ toast('Accedi per modificare'); return; }
+  const chi=$('vf-chi').value, prezzo=toNum($('vf-prezzo').value);
+  if(!chi){ toast('Scegli un commerciale'); return; }
+  if(!prezzo){ $('vf-prezzo').focus(); toast('Inserisci il prezzo di vendita'); return; }
+  const rec={ commerciale:chi, data:$('vf-data').value||todayISO(), veicolo:$('vf-veicolo').value.trim(),
+    prezzo_vendita:prezzo, margine_garanzia:toNum($('vf-gar').value), margine_finanziamento:toNum($('vf-fin').value), margine_trapasso:toNum($('vf-trap').value) };
+  $('vSaveBtn').disabled=true;
+  try{ let error;
+    if(editVenId){ ({error}=await sb.from('vendite').update(rec).eq('id',editVenId)); }
+    else { ({error}=await sb.from('vendite').insert(rec)); }
+    if(error) throw error;
+    toast(editVenId?'Vendita aggiornata':'Vendita aggiunta'); const wasDetail=$('isheet').getAttribute('aria-hidden')==='false'; const openName=incSelName; closeVen(); await loadVen();
+    if(wasDetail && openName) openIncDetail(openName);
+  }catch(err){ toast('Errore: '+(err.message||'salvataggio non riuscito')); }
+  finally{ $('vSaveBtn').disabled=false; }
+}
+async function delVen(id){
+  if(pendingVDel!==id){ pendingVDel=id; toast('Tocca di nuovo Elimina per confermare'); setTimeout(()=>{if(pendingVDel===id)pendingVDel=null;},3500); return; }
+  pendingVDel=null;
+  try{ const {error}=await sb.from('vendite').delete().eq('id',id); if(error) throw error; toast('Vendita eliminata'); const wasDetail=$('isheet').getAttribute('aria-hidden')==='false'; const openName=incSelName; await loadVen(); if(wasDetail && openName) openIncDetail(openName); }
+  catch(err){ toast('Errore: '+(err.message||'eliminazione non riuscita')); }
+}
+async function loadVen(){ if(!sb) return;
+  try{ const {data,error}=await sb.from('vendite').select('*'); if(error) throw error; vendite=data||[]; $('incErr').style.display='none'; if(currentView==='incassi') renderInc(); }
+  catch(err){ $('incErr').textContent='Errore incassi: '+(err.message||err)+' — hai eseguito schema-incassi.sql su Supabase?'; $('incErr').style.display='flex'; }
+}
+$('addVenBtn').onclick=()=>openVen(null);
+$('iAddVenBtn').onclick=()=>openVen(null);
+$('vCloseSheet').onclick=closeVen; $('vCancelBtn').onclick=closeVen;
+$('iCloseSheet').onclick=closeIncDetail; $('iCloseBtn').onclick=closeIncDetail;
+$('vform').addEventListener('submit',saveVen);
+$('vform').addEventListener('input',vLiveCalc);
+$('incYear').addEventListener('change',e=>{ incState.year=parseInt(e.target.value)||incState.year; renderInc(); });
+$('incCards').addEventListener('click',e=>{ const c=e.target.closest('.inc-card'); if(c) openIncDetail(c.dataset.name); });
+$('ibody').addEventListener('click',e=>{ const ed=e.target.closest('[data-vedit]'), dl=e.target.closest('[data-vdel]');
+  if(ed){ const v=vendite.find(x=>x.id===ed.dataset.vedit); if(v) openVen(v); } else if(dl){ delVen(dl.dataset.vdel); } });
+$('scrim').onclick=()=>{ closeSheet(); closeTrat(); closeLead(); closeVen(); closeIncDetail(); $('scrim').hidden=true; };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeVen(); closeIncDetail(); } });
+
 function subscribeRealtime(){
   if(!sb) return;
   if(!rtChannel){ rtChannel=sb.channel('veicoli-rt')
@@ -1665,15 +1939,17 @@ function subscribeRealtime(){
     .on('postgres_changes',{event:'*',schema:'public',table:'annunci'},()=>loadAnn()).subscribe(); }
   if(!rtLead){ rtLead=sb.channel('lead-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'lead'},()=>loadLeads()).subscribe(); }
+  if(!rtVen){ rtVen=sb.channel('vendite-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'vendite'},()=>loadVen()).subscribe(); }
 }
 async function onSignedIn(){
   $('login').hidden=true; $('app').hidden=false; canWrite=true;
   $('loadBanner').style.display='flex';
-  await loadData(); loadTrat(); loadAnn(); loadLeads(); subscribeRealtime();
+  await loadData(); loadTrat(); loadAnn(); loadLeads(); loadVen(); subscribeRealtime();
 }
-function onSignedOut(){ canWrite=false; items=[]; trattative=[]; annunci=[]; leads=[];
-  for(const ch of [rtChannel,rtTrat,rtAnn,rtLead]){ if(ch){ try{sb.removeChannel(ch);}catch(e){} } }
-  rtChannel=rtTrat=rtAnn=rtLead=null;
+function onSignedOut(){ canWrite=false; items=[]; trattative=[]; annunci=[]; leads=[]; vendite=[];
+  for(const ch of [rtChannel,rtTrat,rtAnn,rtLead,rtVen]){ if(ch){ try{sb.removeChannel(ch);}catch(e){} } }
+  rtChannel=rtTrat=rtAnn=rtLead=rtVen=null;
   showLogin('','' ); }
 
 /* ---- login con email + password ---- */
