@@ -107,13 +107,17 @@ nel SQL Editor di Supabase.
 Un CRM con un riquadro per ogni commerciale: cliccandolo si apre il grafico mese
 per mese delle **provvigioni lorde** e **nette** generate, con le barre
 dell'**incassato netto**. Per attivarla esegui **una volta** `schema-incassi.sql`
-nel SQL Editor di Supabase, poi usa **Vendita** per registrare prezzo auto (IVA
-inclusa) e margini caricati al cliente su garanzia / finanziamento / trapasso.
+nel SQL Editor di Supabase, poi usa **Vendita** per registrare prezzo auto,
+**commissione della filiale** sull'auto e margini caricati al cliente su garanzia /
+finanziamento / trapasso.
 
 Calcolo provvigioni, a scaglioni **sul numero di vendite del mese** del venditore:
-- 1ª–5ª vendita → **20%** sull'imponibile auto (prezzo ÷ 1,22) + **25%** sul margine netto
+- 1ª–5ª vendita → **20%** sulla commissione filiale auto + **25%** sul margine
 - 6ª–10ª → **25%** auto + **30%** margine
 - 11ª in poi → **30%** auto + **35%** margine
+
+> La percentuale auto si calcola sulla **commissione che incassa la filiale** sull'auto
+> (non sul prezzo di vendita, che resta solo informativo).
 
 La **lorda** applica le percentuali ai valori IVA inclusa; la **netta** ai valori
 netti (= lorda ÷ 1,22). I margini sono **solo il ricarico** applicato al cliente.

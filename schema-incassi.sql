@@ -9,7 +9,7 @@ begin new.updated_at = now(); return new; end; $$;
 
 -- Vendite dei commerciali, con i margini caricati al cliente.
 -- Le provvigioni (lorda/netta) sono calcolate dal sito, non salvate qui:
---   * imponibile auto = prezzo_vendita / 1,22
+--   * base auto = commissione_filiale (NON il prezzo di vendita)
 --   * scaglione per numero di vendita NEL MESE del venditore:
 --       1-5  -> auto 20% | margini 25%
 --       6-10 -> auto 25% | margini 30%
@@ -21,7 +21,8 @@ create table if not exists public.vendite (
   commerciale          text default '',
   data                 text default '',   -- data vendita (AAAA-MM-GG)
   veicolo              text default '',   -- descrizione (marca modello / targa)
-  prezzo_vendita       numeric default 0, -- prezzo auto IVA inclusa
+  prezzo_vendita       numeric default 0, -- prezzo auto IVA inclusa (solo informativo)
+  commissione_filiale  numeric default 0, -- commissione della filiale sull'auto (base del 20/25/30%)
   margine_garanzia     numeric default 0, -- ricarico garanzia (IVA inclusa)
   margine_finanziamento numeric default 0,-- ricarico finanziamento (IVA inclusa)
   margine_trapasso     numeric default 0, -- ricarico trapasso (IVA inclusa)

@@ -854,8 +854,10 @@ tfoot .ant{color:var(--accent)}
         <div class="f"><label for="vf-chi">Commerciale</label><select id="vf-chi" name="commerciale"></select></div>
         <div class="f"><label for="vf-data">Data vendita</label><input id="vf-data" name="data" type="date"></div>
         <div class="f wide"><label for="vf-veicolo">Veicolo (descrizione)</label><input id="vf-veicolo" name="veicolo" placeholder="es. Fiat Panda · targa"></div>
-        <div class="f wide"><label for="vf-prezzo">Prezzo vendita auto (€, IVA inclusa)</label><input id="vf-prezzo" name="prezzo_vendita" inputmode="numeric" required placeholder="es. 12000"></div>
+        <div class="f"><label for="vf-prezzo">Prezzo vendita auto (€)</label><input id="vf-prezzo" name="prezzo_vendita" inputmode="numeric" placeholder="es. 13000"></div>
+        <div class="f"><label for="vf-comm">Commissione filiale auto (€, IVA incl.)</label><input id="vf-comm" name="commissione_filiale" inputmode="numeric" required placeholder="es. 800"></div>
       </div>
+      <p class="inc-hint" style="margin:8px 2px 0">Le provvigioni auto (20/25/30%) si calcolano sulla <b>commissione della filiale</b>, non sul prezzo di vendita.</p>
     </div>
     <div class="grp">
       <div class="grp-lab">Margini caricati al cliente (solo il ricarico, IVA inclusa)</div>
@@ -1776,8 +1778,8 @@ function computeVendite(){
   const res={};
   for(const k in groups){
     const arr=groups[k].slice().sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')) || String(a.created_at||'').localeCompare(String(b.created_at||'')) );
-    arr.forEach((v,i)=>{ const ord=i+1, band=bandFor(ord); const prezzo=toNum(v.prezzo_vendita), marg=venMarginiGross(v);
-      const lorda=band.auto*prezzo+band.marg*marg, netta=band.auto*(prezzo/1.22)+band.marg*(marg/1.22);
+    arr.forEach((v,i)=>{ const ord=i+1, band=bandFor(ord); const cf=toNum(v.commissione_filiale), marg=venMarginiGross(v);
+      const lorda=band.auto*cf+band.marg*marg, netta=band.auto*(cf/1.22)+band.marg*(marg/1.22);
       res[v.id]={ord,band,lorda,netta,month:venMonthKey(v),comm:v.commerciale||''}; });
   }
   return res;
@@ -1846,6 +1848,7 @@ function openIncDetail(name){
   const rows=vs.map(v=>{ const c=comp[v.id]||{}; return `<tr>
       <td>${esc(itDate(v.data)||'—')}</td><td>${esc(v.veicolo||'—')}</td>
       <td class="r">${fmtEur0.format(toNum(v.prezzo_vendita))}</td>
+      <td class="r">${fmtEur0.format(toNum(v.commissione_filiale))}</td>
       <td class="r">${c.ord?('#'+c.ord):'—'}</td>
       <td class="r">${fmtEur0.format(c.lorda||0)}</td><td class="r">${fmtEur0.format(c.netta||0)}</td>
       <td><div class="vt-act"><button class="icon-btn" data-vedit="${v.id}" aria-label="Modifica">${SVG_EDIT}</button><button class="icon-btn del" data-vdel="${v.id}" aria-label="Elimina">${SVG_DEL}</button></div></td></tr>`; }).join('');
@@ -1860,7 +1863,7 @@ function openIncDetail(name){
       ${incChartSVG(ms)}
     </div>
     <div class="inc-sub">Vendite ${year}</div>
-    ${vs.length?`<div class="vtab-wrap"><table class="vtab"><thead><tr><th>Data</th><th>Veicolo</th><th class="r">Prezzo</th><th class="r">N°</th><th class="r">Lorda</th><th class="r">Netta</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="inc-hint">Nessuna vendita per ${year}. Usa “Aggiungi vendita”.</p>`}`;
+    ${vs.length?`<div class="vtab-wrap"><table class="vtab"><thead><tr><th>Data</th><th>Veicolo</th><th class="r">Prezzo</th><th class="r">Comm.</th><th class="r">N°</th><th class="r">Lorda</th><th class="r">Netta</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="inc-hint">Nessuna vendita per ${year}. Usa “Aggiungi vendita”.</p>`}`;
   $('scrim').hidden=false; $('isheet').classList.add('open'); $('isheet').setAttribute('aria-hidden','false');
 }
 function closeIncDetail(){ $('isheet').classList.remove('open'); $('isheet').setAttribute('aria-hidden','true'); if($('vsheet').getAttribute('aria-hidden')!=='false') $('scrim').hidden=true; incSelName=null; }
@@ -1871,31 +1874,31 @@ function openVen(v){
   const f=$('vform'); f.reset();
   fillVenChi(v?v.commerciale:(incSelName||VENDITORI[0]));
   $('vf-data').value=v?(v.data||todayISO()):todayISO();
-  if(v){ $('vf-veicolo').value=v.veicolo||''; $('vf-prezzo').value=v.prezzo_vendita!=null?v.prezzo_vendita:''; $('vf-gar').value=v.margine_garanzia||''; $('vf-fin').value=v.margine_finanziamento||''; $('vf-trap').value=v.margine_trapasso||''; }
+  if(v){ $('vf-veicolo').value=v.veicolo||''; $('vf-prezzo').value=v.prezzo_vendita!=null?v.prezzo_vendita:''; $('vf-comm').value=v.commissione_filiale!=null?v.commissione_filiale:''; $('vf-gar').value=v.margine_garanzia||''; $('vf-fin').value=v.margine_finanziamento||''; $('vf-trap').value=v.margine_trapasso||''; }
   vLiveCalc();
   $('scrim').hidden=false; $('vsheet').classList.add('open'); $('vsheet').setAttribute('aria-hidden','false');
 }
 function closeVen(){ $('vsheet').classList.remove('open'); $('vsheet').setAttribute('aria-hidden','true'); if($('isheet').getAttribute('aria-hidden')!=='false') $('scrim').hidden=true; editVenId=null; }
 function vLiveCalc(){
   const chi=$('vf-chi').value, data=$('vf-data').value||todayISO();
-  const prezzo=toNum($('vf-prezzo').value), marg=toNum($('vf-gar').value)+toNum($('vf-fin').value)+toNum($('vf-trap').value);
+  const cf=toNum($('vf-comm').value), marg=toNum($('vf-gar').value)+toNum($('vf-fin').value)+toNum($('vf-trap').value);
   const mk=String(data).slice(0,7);
   const others=vendite.filter(v=>v.id!==editVenId && (v.commerciale||'')===chi && venMonthKey(v)===mk);
   let ord=others.length+1;
   if(editVenId){ const comp=computeVendite(); const c=comp[editVenId]; if(c && c.month===mk && c.comm===chi) ord=c.ord; }
   const band=bandFor(ord);
-  const lorda=band.auto*prezzo+band.marg*marg, netta=band.auto*(prezzo/1.22)+band.marg*(marg/1.22);
+  const lorda=band.auto*cf+band.marg*marg, netta=band.auto*(cf/1.22)+band.marg*(marg/1.22);
   $('vc-band').textContent=`Vendita n°${ord} del mese`;
   $('vc-rates').textContent=`auto ${Math.round(band.auto*100)}% · margini ${Math.round(band.marg*100)}%`;
   $('vc-gross').textContent=fmtEur2.format(lorda); $('vc-net').textContent=fmtEur2.format(netta);
 }
 async function saveVen(e){ e.preventDefault();
   if(!sb||!canWrite){ toast('Accedi per modificare'); return; }
-  const chi=$('vf-chi').value, prezzo=toNum($('vf-prezzo').value);
+  const chi=$('vf-chi').value, cf=toNum($('vf-comm').value);
   if(!chi){ toast('Scegli un commerciale'); return; }
-  if(!prezzo){ $('vf-prezzo').focus(); toast('Inserisci il prezzo di vendita'); return; }
+  if(!cf){ $('vf-comm').focus(); toast('Inserisci la commissione della filiale'); return; }
   const rec={ commerciale:chi, data:$('vf-data').value||todayISO(), veicolo:$('vf-veicolo').value.trim(),
-    prezzo_vendita:prezzo, margine_garanzia:toNum($('vf-gar').value), margine_finanziamento:toNum($('vf-fin').value), margine_trapasso:toNum($('vf-trap').value) };
+    prezzo_vendita:toNum($('vf-prezzo').value), commissione_filiale:cf, margine_garanzia:toNum($('vf-gar').value), margine_finanziamento:toNum($('vf-fin').value), margine_trapasso:toNum($('vf-trap').value) };
   $('vSaveBtn').disabled=true;
   try{ let error;
     if(editVenId){ ({error}=await sb.from('vendite').update(rec).eq('id',editVenId)); }
