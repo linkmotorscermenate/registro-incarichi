@@ -327,14 +327,46 @@ tfoot .ant{color:var(--accent)}
 .telcell a{color:var(--ink);text-decoration:none;font-variant-numeric:tabular-nums;font-size:.82rem}
 .telcell .copybtn{border:1px solid var(--hairline);background:var(--surface-2);border-radius:6px;padding:3px 7px;font-size:.67rem;font-weight:700;color:var(--muted)}
 .telcell .copybtn:hover{background:var(--surface-3)}
-.esito{display:inline-block;font-size:.69rem;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
-.esito.da_chiamare{background:var(--surface-3);color:var(--muted)}
-.esito.nessuna_risposta{background:var(--warn-soft);color:var(--warn)}
-.esito.richiamare{background:var(--warn-soft);color:var(--warn)}
-.esito.non_interessato{background:var(--surface-3);color:var(--faint)}
-.esito.appuntamento{background:var(--petrol-soft);color:var(--petrol)}
-.esito.acquisita{background:var(--accent-soft);color:var(--accent)}
-.esito.persa{background:var(--surface-3);color:var(--faint)}
+.esito{display:inline-block;font-size:.69rem;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap;background:var(--eb,var(--surface-3));color:var(--ec,var(--muted))}
+/* palette esiti: ogni esito un colore distinto (chip e menu a tendina) */
+.es-da_chiamare{--eb:#ece9e3;--ec:#8a8578}
+.es-nessuna_risposta{--eb:#f5e8c9;--ec:#9a6b06}
+.es-richiamare{--eb:#dde5f6;--ec:#3559a6}
+.es-scettico{--eb:#efe0f4;--ec:#7a4a8f}
+.es-non_interessato{--eb:#f3dcd7;--ec:#b23b2c}
+.es-appuntamento_da_fissare{--eb:#dcebed;--ec:#15616d}
+.es-appuntamento_fissato{--eb:#d8ecdf;--ec:#2f7d4f}
+/* legacy (dati vecchi) */
+.es-messaggio{--eb:#dde5f6;--ec:#3559a6}
+.es-appuntamento{--eb:#dcebed;--ec:#15616d}
+.es-acquisita{--eb:#d8ecdf;--ec:#2f7d4f}
+.es-persa{--eb:#f3dcd7;--ec:#b23b2c}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .es-da_chiamare{--eb:#2b2a27;--ec:#a39d91}
+  :root:not([data-theme="light"]) .es-nessuna_risposta{--eb:#352c14;--ec:#e3bb57}
+  :root:not([data-theme="light"]) .es-richiamare{--eb:#16233d;--ec:#8fb3ea}
+  :root:not([data-theme="light"]) .es-scettico{--eb:#2c1f33;--ec:#c79ad6}
+  :root:not([data-theme="light"]) .es-non_interessato{--eb:#3a2520;--ec:#e07c62}
+  :root:not([data-theme="light"]) .es-appuntamento_da_fissare{--eb:#15303a;--ec:#64bccb}
+  :root:not([data-theme="light"]) .es-appuntamento_fissato{--eb:#15301f;--ec:#74c492}
+  :root:not([data-theme="light"]) .es-messaggio{--eb:#16233d;--ec:#8fb3ea}
+  :root:not([data-theme="light"]) .es-appuntamento{--eb:#15303a;--ec:#64bccb}
+  :root:not([data-theme="light"]) .es-acquisita{--eb:#15301f;--ec:#74c492}
+  :root:not([data-theme="light"]) .es-persa{--eb:#3a2520;--ec:#e07c62}
+}
+:root[data-theme="dark"] .es-da_chiamare{--eb:#2b2a27;--ec:#a39d91}
+:root[data-theme="dark"] .es-nessuna_risposta{--eb:#352c14;--ec:#e3bb57}
+:root[data-theme="dark"] .es-richiamare{--eb:#16233d;--ec:#8fb3ea}
+:root[data-theme="dark"] .es-scettico{--eb:#2c1f33;--ec:#c79ad6}
+:root[data-theme="dark"] .es-non_interessato{--eb:#3a2520;--ec:#e07c62}
+:root[data-theme="dark"] .es-appuntamento_da_fissare{--eb:#15303a;--ec:#64bccb}
+:root[data-theme="dark"] .es-appuntamento_fissato{--eb:#15301f;--ec:#74c492}
+:root[data-theme="dark"] .es-messaggio{--eb:#16233d;--ec:#8fb3ea}
+:root[data-theme="dark"] .es-appuntamento{--eb:#15303a;--ec:#64bccb}
+:root[data-theme="dark"] .es-acquisita{--eb:#15301f;--ec:#74c492}
+:root[data-theme="dark"] .es-persa{--eb:#3a2520;--ec:#e07c62}
+.cellsel.escol{background:var(--eb);color:var(--ec);border-color:transparent;font-weight:700}
+.cellsel.escol:focus{outline:2px solid var(--ec);outline-offset:1px}
 .day-block{padding:0 12px 6px}
 .day-head{display:flex;justify-content:space-between;align-items:center;padding:6px 0 4px;border-bottom:1px solid var(--hairline);margin-bottom:3px}
 .day-head b{font-size:.8rem;font-variant-numeric:tabular-nums}
@@ -520,7 +552,7 @@ tfoot .ant{color:var(--accent)}
     <div class="kpi"><span class="lab">Annunci</span><span class="val num" id="lKTot">—</span><span class="sub">in elenco</span></div>
     <div class="kpi"><span class="lab">Da chiamare</span><span class="val num" id="lKTodo">—</span><span class="sub">senza esito</span></div>
     <div class="kpi net"><span class="lab"><span class="dot" style="background:var(--petrol)"></span>Chiamate oggi</span><span class="val num" id="lKToday">—</span><span class="sub">tutti i commerciali</span></div>
-    <div class="kpi gross"><span class="lab"><span class="dot" style="background:var(--accent)"></span>Acquisite</span><span class="val num" id="lKWin">—</span><span class="sub">esito positivo</span></div>
+    <div class="kpi gross"><span class="lab"><span class="dot" style="background:var(--accent)"></span>Appunt. fissati</span><span class="val num" id="lKWin">—</span><span class="sub">esito positivo</span></div>
   </div>
   <div class="segmented" id="lSub" role="group" aria-label="Vista chiamate" style="margin-bottom:14px">
     <button data-s="elenco" aria-pressed="true">Elenco annunci</button>
@@ -1281,16 +1313,19 @@ const VENDITORI=['Thomas','Roberta'];
 const ESITI=[
   {v:'da_chiamare',l:'Da chiamare'},
   {v:'nessuna_risposta',l:'Nessuna risposta'},
-  {v:'richiamare',l:'Da richiamare'},
+  {v:'richiamare',l:'Da richiamare, interessato'},
+  {v:'scettico',l:'Scettico, da tenere in contatto'},
   {v:'non_interessato',l:'Non interessato'},
-  {v:'appuntamento',l:'Appuntamento'},
-  {v:'acquisita',l:'Acquisita'},
-  {v:'persa',l:'Persa'}
+  {v:'appuntamento_da_fissare',l:'Appuntamento da fissare'},
+  {v:'appuntamento_fissato',l:'Appuntamento fissato'}
 ];
 const esitoLabel=v=>{ const e=ESITI.find(x=>x.v===v); return e?e.l:(v||'—'); };
-const esitoClass=v=>ESITI.some(x=>x.v===v)?v:'da_chiamare';
+const esitoClass=v=>'es-'+(v||'da_chiamare');
+function esitoSelect(id,val,wide){ const v=val||'da_chiamare'; return `<select class="cellsel escol ${esitoClass(v)}"${wide?' style="max-width:none"':''} data-lfield="esito" data-lid="${id}">${esitoOptions(v)}</select>`; }
+function colorEsitoSel(sel){ if(!sel) return; sel.classList.add('escol'); for(const e of ESITI) sel.classList.remove('es-'+e.v); sel.classList.add(esitoClass(sel.value)); }
 function leadComms(){ const s=new Set(VENDITORI); leads.forEach(l=>{ if(l.commerciale) s.add(l.commerciale); }); return [...s]; }
-function esitoOptions(sel){ return ESITI.map(e=>`<option value="${e.v}"${e.v===(sel||'da_chiamare')?' selected':''}>${esc(e.l)}</option>`).join(''); }
+function esitoOptions(sel){ sel=sel||'da_chiamare'; let o=ESITI.map(e=>`<option value="${e.v}"${e.v===sel?' selected':''}>${esc(e.l)}</option>`).join('');
+  if(!ESITI.some(e=>e.v===sel)) o=`<option value="${esc(sel)}" selected>${esc(esitoLabel(sel))}</option>`+o; return o; }
 function commOptions(sel,withEmpty){ let h=withEmpty?`<option value="">—</option>`:''; for(const c of leadComms()){ h+=`<option value="${esc(c)}"${c===sel?' selected':''}>${esc(c)}</option>`; } return h; }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function itDate(iso){ return iso?String(iso).split('-').reverse().join('/'):''; }
@@ -1331,7 +1366,7 @@ function renderLeadKpis(){
   const todo=leads.filter(l=>!l.esito||l.esito==='da_chiamare').length;
   const t=todayISO();
   const nToday=leads.filter(l=>l.data_chiamata===t && l.commerciale).length;
-  const win=leads.filter(l=>l.esito==='acquisita').length;
+  const win=leads.filter(l=>l.esito==='appuntamento_fissato'||l.esito==='acquisita').length;
   $('lKTot').textContent=leads.length; $('lKTodo').textContent=todo; $('lKToday').textContent=nToday; $('lKWin').textContent=win;
 }
 function renderLeads(){
@@ -1366,7 +1401,7 @@ function renderLeads(){
       <td>${fonteCell(l)}</td>
       <td><select class="cellsel" data-lfield="commerciale" data-lid="${l.id}">${commOptions(l.commerciale||'',true)}</select></td>
       <td><input class="celldate" type="date" data-lfield="data_chiamata" data-lid="${l.id}" value="${esc(l.data_chiamata||'')}"></td>
-      <td><select class="cellsel" data-lfield="esito" data-lid="${l.id}">${esitoOptions(e)}</select></td>
+      <td>${esitoSelect(l.id,e)}</td>
       <td><div class="row-act">
         <button class="icon-btn" data-ledit="${l.id}" aria-label="Modifica"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
         <button class="icon-btn del" data-ldel="${l.id}" aria-label="Elimina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
@@ -1385,7 +1420,7 @@ function renderLeads(){
       <div class="fields">
         <div class="f"><label>Commerciale</label><select class="cellsel" style="max-width:none" data-lfield="commerciale" data-lid="${l.id}">${commOptions(l.commerciale||'',true)}</select></div>
         <div class="f"><label>Data</label><input class="celldate" type="date" data-lfield="data_chiamata" data-lid="${l.id}" value="${esc(l.data_chiamata||'')}"></div>
-        <div class="f wide"><label>Esito</label><select class="cellsel" style="max-width:none" data-lfield="esito" data-lid="${l.id}">${esitoOptions(e)}</select></div>
+        <div class="f wide"><label>Esito</label>${esitoSelect(l.id,e,true)}</div>
       </div>
       <div class="card-act">
         <button class="ghost" data-ledit="${l.id}">Dettagli</button>
@@ -1411,22 +1446,22 @@ function carrozzeria(l){
   return 'Berlina/City';
 }
 function periodRecap(items){
-  let lavorate=0,app=0,acq=0,persa=0,dc=0; const fasce={},carr={};
+  let lavorate=0,fiss=0,dafiss=0,dc=0; const fasce={},carr={};
   for(const l of items){ const e=l.esito||'da_chiamare';
     if(e==='da_chiamare') dc++; else lavorate++;
-    if(e==='appuntamento') app++; else if(e==='acquisita') acq++; else if(e==='persa') persa++;
+    if(e==='appuntamento_fissato'||e==='acquisita') fiss++; else if(e==='appuntamento_da_fissare'||e==='appuntamento') dafiss++;
     const f=fasciaOf(l); if(f) fasce[f.l]=(fasce[f.l]||0)+1;
     const c=carrozzeria(l); carr[c]=(carr[c]||0)+1;
   }
-  const chiusura=lavorate?Math.round((app+acq)/lavorate*100):null;
+  const chiusura=lavorate?Math.round(fiss/lavorate*100):null;
   const scoperte=FASCE.filter(f=>!fasce[f.l]).map(f=>f.l);
-  return {tot:items.length,lavorate,app,acq,persa,dc,chiusura,fasce,carr,scoperte};
+  return {tot:items.length,lavorate,fiss,dafiss,dc,chiusura,fasce,carr,scoperte};
 }
 function recapHtml(rc){
   let h=`<div class="recap"><div class="rc-row">`;
   h+=`<span class="rc-chip">Chiamate<b>${rc.tot}</b></span>`;
-  h+=`<span class="rc-chip ok">Appuntamenti<b>${rc.app}</b></span>`;
-  h+=`<span class="rc-chip ok">Acquisite<b>${rc.acq}</b></span>`;
+  h+=`<span class="rc-chip ok">Appunt. fissati<b>${rc.fiss}</b></span>`;
+  h+=`<span class="rc-chip">Da fissare<b>${rc.dafiss}</b></span>`;
   h+=`<span class="rc-chip rate">% chiusura<b>${rc.chiusura==null?'—':rc.chiusura+'%'}</b></span>`;
   h+=`</div>`;
   const fE=FASCE.filter(f=>rc.fasce[f.l]).map(f=>`<span class="rc-seg">${f.l}<b>${rc.fasce[f.l]}</b></span>`).join('');
@@ -1464,10 +1499,10 @@ function renderLeadReport(){
     const card=document.createElement('div'); card.className='grp-card';
     let html=`<div class="grp-head"><h3>${esc(chi)}</h3><span class="count">${list.length} auto · ${chiusura(chiRc)} · ${keys.length} ${keys.length===1?U[0]:U[1]}</span></div>`;
     for(const k of keys){ const its=groups[k]; const rc=periodRecap(its);
-      html+=`<div class="day-block"><div class="day-head"><b>${esc(info[k])}</b><span>${its.length} auto · ${rc.app} appunt.</span></div>`;
+      html+=`<div class="day-block"><div class="day-head"><b>${esc(info[k])}</b><span>${its.length} auto · ${rc.fiss} fissati</span></div>`;
       html+=recapHtml(rc);
       if(perGiorno){ html+=`<ul class="day-list">`;
-        for(const l of its){ html+=`<li><span class="dl-car">${esc(carTitle(l))}${l.comune?(' <span style="color:var(--faint)">· '+esc(l.comune)+'</span>'):''}</span><span class="dl-right">${l.link?`<a class="fonte-link" href="${esc(l.link)}" target="_blank" rel="noopener">${esc(l.fonte||'Vedi')} ↗</a>`:''}<select class="cellsel" data-lfield="esito" data-lid="${l.id}">${esitoOptions(l.esito)}</select></span></li>`; }
+        for(const l of its){ html+=`<li><span class="dl-car">${esc(carTitle(l))}${l.comune?(' <span style="color:var(--faint)">· '+esc(l.comune)+'</span>'):''}</span><span class="dl-right">${l.link?`<a class="fonte-link" href="${esc(l.link)}" target="_blank" rel="noopener">${esc(l.fonte||'Vedi')} ↗</a>`:''}${esitoSelect(l.id,l.esito)}</span></li>`; }
         html+='</ul>';
       }
       html+='</div>';
@@ -1492,6 +1527,7 @@ function openLead(l){
   $('lf-esito').innerHTML=esitoOptions(l?l.esito:'da_chiamare');
   if(l){ for(const k of ['marca','modello','versione','anno','km','fonte','comune','prov','telefono','link']) if(f[k]) f[k].value=l[k]!=null?l[k]:'';
     f['prezzo'].value=l.prezzo!=null?l.prezzo:''; $('lf-data').value=l.data_chiamata||''; $('lf-chi').value=l.commerciale||''; $('lf-esito').value=l.esito||'da_chiamare'; }
+  colorEsitoSel($('lf-esito'));
   $('scrim').hidden=false; $('lsheet').classList.add('open'); $('lsheet').setAttribute('aria-hidden','false');
 }
 function closeLead(){ $('lsheet').classList.remove('open'); $('lsheet').setAttribute('aria-hidden','true'); $('scrim').hidden=true; editLeadId=null; }
@@ -1597,6 +1633,7 @@ $('lFile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files
 $('lAddBtn').onclick=()=>openLead(null);
 $('lCloseSheet').onclick=closeLead; $('lCancelBtn').onclick=closeLead;
 $('lform').addEventListener('submit',saveLead);
+$('lf-esito').addEventListener('change',e=>colorEsitoSel(e.target));
 $('scrim').onclick=()=>{ closeSheet(); closeTrat(); closeLead(); };
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLead(); });
 document.addEventListener('change',e=>{ const el=e.target.closest('[data-lfield]'); if(el) saveLeadField(el.dataset.lid, el.dataset.lfield, el.value); });
