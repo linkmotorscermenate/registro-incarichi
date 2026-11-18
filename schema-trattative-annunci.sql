@@ -15,6 +15,7 @@ create table if not exists public.trattative (
   veicolo_id     text default '',   -- id del veicolo scelto dal registro
   veicolo_label  text default '',   -- "Modello · Targa" (copiato per lo storico)
   tipo           text default 'Auto',
+  commerciale    text default '',   -- chi sta facendo la trattativa
   prezzo_offerta numeric default 0,
   garanzia       text default 'nessuna',  -- nessuna | light | advanced | completa
   costo_garanzia numeric default 0,

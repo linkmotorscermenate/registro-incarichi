@@ -231,6 +231,13 @@ tfoot .gross{color:var(--accent)}
 .vtab td.r,.vtab th.r{text-align:right;font-variant-numeric:tabular-nums}
 .vtab .vt-act{display:flex;gap:4px;justify-content:flex-end}
 .inc-sub{font-size:.8rem;font-weight:800;margin:4px 2px 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.mrep{margin-bottom:18px}
+.mrep-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 2px 6px;border-bottom:2px solid var(--petrol);margin-bottom:6px}
+.mrep-head .mh-l{font-weight:800;font-size:.98rem}
+.mrep-head .mh-pay{font-weight:800;color:var(--petrol);font-variant-numeric:tabular-nums;font-size:1.02rem}
+.mrep-head .mh-g{color:var(--faint);font-weight:600;font-size:.76rem}
+.mrep-brk{font-size:.73rem;color:var(--muted);margin:0 2px 8px}
+.fin-tag{font-size:.6rem;background:var(--warn-soft);color:var(--warn);padding:1px 5px;border-radius:5px;font-weight:700;white-space:nowrap;vertical-align:middle}
 .sheet-head{padding:18px 20px;padding-top:max(18px,env(safe-area-inset-top,0px));border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:12px}
 .sheet-head h2{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;flex:1}
 .sheet-body{overflow-y:auto;padding:18px 20px;flex:1;padding-right:max(20px,env(safe-area-inset-right,0px))}
@@ -554,7 +561,7 @@ tfoot .ant{color:var(--accent)}
     <div class="scroll">
       <table>
         <thead><tr>
-          <th>Veicolo</th><th>Tipo</th>
+          <th>Veicolo</th><th>Commerciale</th><th>Tipo</th>
           <th class="r">Prezzo offerta</th><th class="r">Provv. +IVA</th>
           <th>Garanzia</th><th class="r">Costo gar.</th><th class="r">Trapasso</th>
           <th class="r">Anticipo</th><th></th>
@@ -759,6 +766,7 @@ tfoot .ant{color:var(--accent)}
       <div class="grp-lab">Veicolo</div>
       <div class="fields">
         <div class="f wide"><label for="tf-veicolo">Veicolo (dagli incarichi)</label><select id="tf-veicolo" name="veicolo"></select></div>
+        <div class="f wide"><label for="tf-chi">Commerciale</label><select id="tf-chi" name="commerciale"></select></div>
       </div>
     </div>
     <div class="grp">
@@ -853,11 +861,12 @@ tfoot .ant{color:var(--accent)}
       <div class="fields">
         <div class="f"><label for="vf-chi">Commerciale</label><select id="vf-chi" name="commerciale"></select></div>
         <div class="f"><label for="vf-data">Data vendita</label><input id="vf-data" name="data" type="date"></div>
-        <div class="f wide"><label for="vf-veicolo">Veicolo (descrizione)</label><input id="vf-veicolo" name="veicolo" placeholder="es. Fiat Panda · targa"></div>
+        <div class="f wide"><label for="vf-vsel">Veicolo (dal registro)</label><select id="vf-vsel" name="veicolo_id"></select></div>
+        <div class="f wide"><label for="vf-veicolo">Descrizione</label><input id="vf-veicolo" name="veicolo" placeholder="si compila dal registro, modificabile"></div>
         <div class="f"><label for="vf-prezzo">Prezzo vendita auto (€)</label><input id="vf-prezzo" name="prezzo_vendita" inputmode="numeric" placeholder="es. 13000"></div>
         <div class="f"><label for="vf-comm">Commissione filiale auto (€, IVA incl.)</label><input id="vf-comm" name="commissione_filiale" inputmode="numeric" required placeholder="es. 800"></div>
       </div>
-      <p class="inc-hint" style="margin:8px 2px 0">Le provvigioni auto (20/25/30%) si calcolano sulla <b>commissione della filiale</b>, non sul prezzo di vendita.</p>
+      <p class="inc-hint" style="margin:8px 2px 0">Le provvigioni auto (20/25/30%) si calcolano sulla <b>commissione della filiale</b>, non sul prezzo di vendita. Scegliendo un veicolo dal registro, al salvataggio viene <b>tolto dal Registro incarichi</b>.</p>
     </div>
     <div class="grp">
       <div class="grp-lab">Margini caricati al cliente (solo il ricarico, IVA inclusa)</div>
@@ -1196,6 +1205,7 @@ function renderTrat(){
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td><div class="veh"><b>${esc(t.veicolo_label||'—')}</b></div></td>
+      <td>${t.commerciale?esc(t.commerciale):'<span style="color:var(--faint)">—</span>'}</td>
       <td><span class="tag ${t.tipo==='Moto'?'moto':'auto'}">${esc(t.tipo||'—')}</span></td>
       <td class="r num"><span class="price">${fmtEur0.format(po)}</span></td>
       <td class="r num gross">${fmtEur2.format(tProvGross(t))}</td>
@@ -1210,7 +1220,7 @@ function renderTrat(){
     tb.appendChild(tr);
     const c=document.createElement('div'); c.className='card';
     c.innerHTML=`
-      <div class="card-top"><div><b>${esc(t.veicolo_label||'—')}</b><small>Offerta ${fmtEur0.format(po)} · ${esc(GAR_LABEL[g]||g)}</small></div>
+      <div class="card-top"><div><b>${esc(t.veicolo_label||'—')}</b><small>Offerta ${fmtEur0.format(po)} · ${esc(GAR_LABEL[g]||g)}${t.commerciale?(' · '+esc(t.commerciale)):''}</small></div>
         <span class="rate ${rateClass(r)}">${rateLabel(r)}</span></div>
       <div class="card-fig">
         <div><span class="k">Provv.+IVA</span><span class="v" style="color:var(--accent)">${fmtEur0.format(tProvGross(t))}</span></div>
@@ -1225,7 +1235,7 @@ function renderTrat(){
   }
   if(rows.length){
     const prov2=rows.reduce((s,t)=>s+tProvGross(t),0), ant2=rows.reduce((s,t)=>s+tAnticipo(t),0);
-    tf.innerHTML=`<tr><td colspan="3">Totale · ${rows.length}</td>
+    tf.innerHTML=`<tr><td colspan="4">Totale · ${rows.length}</td>
       <td class="r num gross">${fmtEur2.format(prov2)}</td><td colspan="3"></td>
       <td class="r num ant">${fmtEur2.format(ant2)}</td><td></td></tr>`;
   }
@@ -1252,6 +1262,7 @@ function openTrat(t){
   $('tsheetTitle').textContent=t?'Modifica trattativa':'Nuova trattativa';
   const f=$('tform'); f.reset();
   fillVeicoloSelect(t?t.veicolo_id:'');
+  $('tf-chi').innerHTML=commOptions(t?t.commerciale||'':'',true);
   if(t){ $('tf-prezzo').value=t.prezzo_offerta!=null?t.prezzo_offerta:''; $('tf-gar-tipo').value=t.garanzia||'nessuna';
     $('tf-gar-costo').value=t.costo_garanzia!=null?t.costo_garanzia:''; $('tf-trap').value=t.costo_trapasso!=null?t.costo_trapasso:''; }
   tLiveCalc();
@@ -1264,7 +1275,7 @@ async function saveTrat(e){
   const vid=$('tf-veicolo').value, v=vehById(vid), po=toNum($('tf-prezzo').value);
   if(!vid||!v){ toast('Scegli un veicolo'); return; }
   if(!po){ $('tf-prezzo').focus(); toast('Inserisci il prezzo offerta'); return; }
-  const rec={ veicolo_id:vid, veicolo_label:(v.modello||'')+(v.targa?(' · '+v.targa):''), tipo:v.tipo||'Auto',
+  const rec={ veicolo_id:vid, veicolo_label:(v.modello||'')+(v.targa?(' · '+v.targa):''), tipo:v.tipo||'Auto', commerciale:$('tf-chi').value,
     prezzo_offerta:po, garanzia:$('tf-gar-tipo').value, costo_garanzia:toNum($('tf-gar-costo').value), costo_trapasso:toNum($('tf-trap').value) };
   $('tSaveBtn').disabled=true;
   try{ let error;
@@ -1582,6 +1593,7 @@ function recapHtml(rc){
   return h+`</div>`;
 }
 const MESI=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+const MESI_LONG=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 function getISOWeek(d){ const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const dn=t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-dn); const ys=new Date(Date.UTC(t.getUTCFullYear(),0,1)); const wk=Math.ceil((((t-ys)/86400000)+1)/7); return {year:t.getUTCFullYear(),week:wk}; }
 function periodOf(iso){
   if(!iso) return {key:'0000',label:'Senza data'};
@@ -1786,12 +1798,23 @@ function computeVendite(){
 }
 function incNames(){ const s=new Set(VENDITORI); vendite.forEach(v=>{ if(v.commerciale) s.add(v.commerciale); }); return [...s]; }
 function incYears(){ const s=new Set([incState.year]); vendite.forEach(v=>{ const y=parseInt(String(v.data||'').slice(0,4)); if(y) s.add(y); }); return [...s].sort((a,b)=>b-a); }
-function monthlyFor(name,year){ const comp=computeVendite();
-  const months=Array.from({length:12},()=>({lorda:0,netta:0,count:0}));
-  for(const v of vendite){ if((v.commerciale||'')!==name) continue; const y=parseInt(String(v.data||'').slice(0,4)); if(y!==year) continue;
-    const mm=parseInt(String(v.data||'').slice(5,7))-1; if(mm<0||mm>11) continue; const c=comp[v.id]; if(!c) continue;
-    months[mm].lorda+=c.lorda; months[mm].netta+=c.netta; months[mm].count++; }
-  return months;
+function nextYM(ym){ let [y,m]=String(ym).split('-').map(Number); if(!y||!m) return ym; m++; if(m>12){m=1;y++;} return y+'-'+String(m).padStart(2,'0'); }
+// Componenti provvigione: "imm" (auto+garanzia+trapasso) nel mese della vendita,
+// "def" (finanziamento) conta per il mese DOPO.
+function venComponents(v,band){ const cf=toNum(v.commissione_filiale),gar=toNum(v.margine_garanzia),fin=toNum(v.margine_finanziamento),trap=toNum(v.margine_trapasso);
+  const imm_l=band.auto*cf+band.marg*(gar+trap), def_l=band.marg*fin;
+  return {imm_l, imm_n:imm_l/1.22, def_l, def_n:def_l/1.22}; }
+// Mappa per mese del commerciale: imm = maturato nel mese, fin = finanziamento arrivato dal mese prec.
+function incMonthly(name){ const comp=computeVendite(); const map={};
+  const ensure=ym=>map[ym]=(map[ym]||{imm_l:0,imm_n:0,fin_l:0,fin_n:0,count:0});
+  for(const v of vendite){ if((v.commerciale||'')!==name) continue; const c=comp[v.id]; if(!c) continue; const ym=venMonthKey(v); if(!ym) continue;
+    const p=venComponents(v,c.band); const a=ensure(ym); a.imm_l+=p.imm_l; a.imm_n+=p.imm_n; a.count++;
+    if(p.def_l>0){ const b=ensure(nextYM(ym)); b.fin_l+=p.def_l; b.fin_n+=p.def_n; } }
+  return map;
+}
+function monthlyFor(name,year){ const map=incMonthly(name);
+  return Array.from({length:12},(_,m)=>{ const ym=year+'-'+String(m+1).padStart(2,'0'); const b=map[ym]||{imm_l:0,imm_n:0,fin_l:0,fin_n:0,count:0};
+    return {lorda:b.imm_l+b.fin_l, netta:b.imm_n+b.fin_n, count:b.count}; });
 }
 function niceMax(v){ if(v<=0) return 100; const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; const step=n<=1?1:n<=2?2:n<=5?5:10; return step*p; }
 function sparkSVG(ms){ const W=220,H=34,maxV=Math.max(1,...ms.map(x=>x.netta)); const x=m=>(m+0.5)*(W/12), y=v=>H-2-(H-6)*(v/maxV);
@@ -1842,37 +1865,55 @@ function openIncDetail(name){
   incSelName=name; const year=incState.year;
   $('isheetTitle').textContent=name+' · '+year;
   const ms=monthlyFor(name,year); const tot=ms.reduce((a,x)=>({l:a.l+x.lorda,n:a.n+x.netta,c:a.c+x.count}),{l:0,n:0,c:0});
-  const comp=computeVendite();
-  const vs=vendite.filter(v=>(v.commerciale||'')===name && parseInt(String(v.data||'').slice(0,4))===year)
-    .sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')) || String(b.created_at||'').localeCompare(String(a.created_at||'')));
-  const rows=vs.map(v=>{ const c=comp[v.id]||{}; return `<tr>
-      <td>${esc(itDate(v.data)||'—')}</td><td>${esc(v.veicolo||'—')}</td>
-      <td class="r">${fmtEur0.format(toNum(v.prezzo_vendita))}</td>
-      <td class="r">${fmtEur0.format(toNum(v.commissione_filiale))}</td>
-      <td class="r">${c.ord?('#'+c.ord):'—'}</td>
-      <td class="r">${fmtEur0.format(c.lorda||0)}</td><td class="r">${fmtEur0.format(c.netta||0)}</td>
-      <td><div class="vt-act"><button class="icon-btn" data-vedit="${v.id}" aria-label="Modifica">${SVG_EDIT}</button><button class="icon-btn del" data-vdel="${v.id}" aria-label="Elimina">${SVG_DEL}</button></div></td></tr>`; }).join('');
+  const comp=computeVendite(); const map=incMonthly(name);
+  // mesi dell'anno con attività (vendite nel mese o pagamenti in arrivo)
+  const mkeys=[]; for(let m=12;m>=1;m--){ const ym=year+'-'+String(m).padStart(2,'0'); const b=map[ym]; if(b && (b.count>0 || b.imm_l>0 || b.fin_l>0)) mkeys.push({ym,m:m-1,b}); }
+  const venRows=ym=>{ const vs=vendite.filter(v=>(v.commerciale||'')===name && venMonthKey(v)===ym)
+      .sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')) || String(b.created_at||'').localeCompare(String(a.created_at||'')));
+    return vs.map(v=>{ const c=comp[v.id]||{}; const hasFin=toNum(v.margine_finanziamento)>0; return `<tr>
+        <td>${esc(itDate(v.data)||'—')}</td><td>${esc(v.veicolo||'—')}${hasFin?' <span class="fin-tag">fin → mese dopo</span>':''}</td>
+        <td class="r">${fmtEur0.format(toNum(v.prezzo_vendita))}</td>
+        <td class="r">${fmtEur0.format(toNum(v.commissione_filiale))}</td>
+        <td class="r">${c.ord?('#'+c.ord):'—'}</td>
+        <td class="r">${fmtEur0.format(c.lorda||0)}</td><td class="r">${fmtEur0.format(c.netta||0)}</td>
+        <td><div class="vt-act"><button class="icon-btn" data-vedit="${v.id}" aria-label="Modifica">${SVG_EDIT}</button><button class="icon-btn del" data-vdel="${v.id}" aria-label="Elimina">${SVG_DEL}</button></div></td></tr>`; }).join('');
+  };
+  const report = mkeys.length ? mkeys.map(({ym,m,b})=>{
+    const payN=b.imm_n+b.fin_n, payL=b.imm_l+b.fin_l;
+    const rws=venRows(ym);
+    return `<div class="mrep">
+      <div class="mrep-head"><span class="mh-l">${MESI_LONG[m]} ${year}</span><span class="mh-pay" title="da pagare netto">${fmtEur0.format(payN)}<span class="mh-g"> · ${fmtEur0.format(payL)} lordo</span></span></div>
+      <div class="mrep-brk">Vendite del mese ${fmtEur0.format(b.imm_n)} netto${b.fin_n>0?` · + finanziamenti dal mese prec. ${fmtEur0.format(b.fin_n)} netto`:''}${b.count?` · ${b.count} vendite`:' · nessuna vendita (solo finanziamenti)'}</div>
+      ${rws?`<div class="vtab-wrap"><table class="vtab"><thead><tr><th>Data</th><th>Veicolo</th><th class="r">Prezzo</th><th class="r">Comm.</th><th class="r">N°</th><th class="r">Lorda</th><th class="r">Netta</th><th></th></tr></thead><tbody>${rws}</tbody></table></div>`:''}
+    </div>`; }).join('') : `<p class="inc-hint">Nessuna vendita per ${year}. Usa “Aggiungi vendita”.</p>`;
   $('ibody').innerHTML=`
     <div class="inc-mini">
-      <div class="m net"><span class="v">${fmtEur0.format(tot.n)}</span><span class="k">Incassato netto</span></div>
+      <div class="m net"><span class="v">${fmtEur0.format(tot.n)}</span><span class="k">Da pagare netto ${year}</span></div>
       <div class="m gross"><span class="v">${fmtEur0.format(tot.l)}</span><span class="k">Provv. lorde</span></div>
       <div class="m"><span class="v">${tot.c}</span><span class="k">Vendite ${year}</span></div>
     </div>
     <div class="chart-wrap">
-      <div class="chart-legend"><span style="color:var(--accent)"><i></i>Provv. lorda</span><span style="color:var(--petrol)"><i></i>Provv. netta</span><span style="color:var(--petrol)"><i class="bar"></i>Incassato netto</span></div>
+      <div class="chart-legend"><span style="color:var(--accent)"><i></i>Provv. lorda</span><span style="color:var(--petrol)"><i></i>Provv. netta</span><span style="color:var(--petrol)"><i class="bar"></i>Da pagare netto</span></div>
       ${incChartSVG(ms)}
     </div>
-    <div class="inc-sub">Vendite ${year}</div>
-    ${vs.length?`<div class="vtab-wrap"><table class="vtab"><thead><tr><th>Data</th><th>Veicolo</th><th class="r">Prezzo</th><th class="r">Comm.</th><th class="r">N°</th><th class="r">Lorda</th><th class="r">Netta</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="inc-hint">Nessuna vendita per ${year}. Usa “Aggiungi vendita”.</p>`}`;
+    <div class="inc-sub">Report mensile · da pagare</div>
+    ${report}`;
   $('scrim').hidden=false; $('isheet').classList.add('open'); $('isheet').setAttribute('aria-hidden','false');
 }
 function closeIncDetail(){ $('isheet').classList.remove('open'); $('isheet').setAttribute('aria-hidden','true'); if($('vsheet').getAttribute('aria-hidden')!=='false') $('scrim').hidden=true; incSelName=null; }
 function fillVenChi(selv){ $('vf-chi').innerHTML=incNames().map(n=>`<option value="${esc(n)}"${n===selv?' selected':''}>${esc(n)}</option>`).join(''); }
+function fillVenVeicolo(selId){
+  const opts=items.slice().sort((a,b)=>String(a.modello||'').localeCompare(String(b.modello||''),'it'));
+  let h=`<option value="">— a mano (non in registro) —</option>`;
+  for(const v of opts){ h+=`<option value="${esc(v.id)}"${v.id===selId?' selected':''}>${esc(vehLabelFull(v))}</option>`; }
+  $('vf-vsel').innerHTML=h; if(selId) $('vf-vsel').value=selId;
+}
 function openVen(v){
   editVenId=v?v.id:null;
   $('vsheetTitle').textContent=v?'Modifica vendita':'Nuova vendita';
   const f=$('vform'); f.reset();
   fillVenChi(v?v.commerciale:(incSelName||VENDITORI[0]));
+  fillVenVeicolo(v?v.veicolo_id:'');
   $('vf-data').value=v?(v.data||todayISO()):todayISO();
   if(v){ $('vf-veicolo').value=v.veicolo||''; $('vf-prezzo').value=v.prezzo_vendita!=null?v.prezzo_vendita:''; $('vf-comm').value=v.commissione_filiale!=null?v.commissione_filiale:''; $('vf-gar').value=v.margine_garanzia||''; $('vf-fin').value=v.margine_finanziamento||''; $('vf-trap').value=v.margine_trapasso||''; }
   vLiveCalc();
@@ -1894,16 +1935,18 @@ function vLiveCalc(){
 }
 async function saveVen(e){ e.preventDefault();
   if(!sb||!canWrite){ toast('Accedi per modificare'); return; }
-  const chi=$('vf-chi').value, cf=toNum($('vf-comm').value);
+  const chi=$('vf-chi').value, cf=toNum($('vf-comm').value), vid=$('vf-vsel').value;
   if(!chi){ toast('Scegli un commerciale'); return; }
   if(!cf){ $('vf-comm').focus(); toast('Inserisci la commissione della filiale'); return; }
-  const rec={ commerciale:chi, data:$('vf-data').value||todayISO(), veicolo:$('vf-veicolo').value.trim(),
+  const rec={ commerciale:chi, data:$('vf-data').value||todayISO(), veicolo:$('vf-veicolo').value.trim(), veicolo_id:vid||'',
     prezzo_vendita:toNum($('vf-prezzo').value), commissione_filiale:cf, margine_garanzia:toNum($('vf-gar').value), margine_finanziamento:toNum($('vf-fin').value), margine_trapasso:toNum($('vf-trap').value) };
   $('vSaveBtn').disabled=true;
   try{ let error;
     if(editVenId){ ({error}=await sb.from('vendite').update(rec).eq('id',editVenId)); }
     else { ({error}=await sb.from('vendite').insert(rec)); }
     if(error) throw error;
+    // vendita nuova da un veicolo del registro: lo tolgo dagli incarichi
+    if(!editVenId && vid && vehById(vid)){ try{ const {error:de}=await sb.from('veicoli').delete().eq('id',vid); if(!de) await loadData(); }catch(_){} }
     toast(editVenId?'Vendita aggiornata':'Vendita aggiunta'); const wasDetail=$('isheet').getAttribute('aria-hidden')==='false'; const openName=incSelName; closeVen(); await loadVen();
     if(wasDetail && openName) openIncDetail(openName);
   }catch(err){ toast('Errore: '+(err.message||'salvataggio non riuscito')); }
@@ -1925,6 +1968,7 @@ $('vCloseSheet').onclick=closeVen; $('vCancelBtn').onclick=closeVen;
 $('iCloseSheet').onclick=closeIncDetail; $('iCloseBtn').onclick=closeIncDetail;
 $('vform').addEventListener('submit',saveVen);
 $('vform').addEventListener('input',vLiveCalc);
+$('vf-vsel').addEventListener('change',e=>{ const v=vehById(e.target.value); if(v) $('vf-veicolo').value=vehLabelFull(v); });
 $('incYear').addEventListener('change',e=>{ incState.year=parseInt(e.target.value)||incState.year; renderInc(); });
 $('incCards').addEventListener('click',e=>{ const c=e.target.closest('.inc-card'); if(c) openIncDetail(c.dataset.name); });
 $('ibody').addEventListener('click',e=>{ const ed=e.target.closest('[data-vedit]'), dl=e.target.closest('[data-vdel]');

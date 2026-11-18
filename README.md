@@ -15,6 +15,7 @@ i tuoi dispositivi. Pensato per essere pubblicato su **GitHub Pages**.
 | `schema-trattative-annunci.sql` | Crea le tabelle delle pagine **Trattative** e **Gestione annunci** |
 | `schema-chiamate.sql` | Crea la tabella della pagina **Chiamate** (ricerca auto) |
 | `schema-incassi.sql` | Crea la tabella della sezione **Incassi** (provvigioni venditori) |
+| `migrazione-2026-11.sql` | Aggiorna le tabelle già esistenti (commerciale in trattative, veicolo_id in vendite) |
 | `comuni-coords.json` | Coordinate dei comuni italiani (per il filtro paese + raggio km) |
 | `.nojekyll` | Serve a GitHub Pages per pubblicare correttamente |
 
@@ -118,6 +119,15 @@ Calcolo provvigioni, a scaglioni **sul numero di vendite del mese** del venditor
 
 > La percentuale auto si calcola sulla **commissione che incassa la filiale** sull'auto
 > (non sul prezzo di vendita, che resta solo informativo).
+
+Altre regole:
+- Il **veicolo** della vendita si sceglie **dal Registro incarichi**; al salvataggio
+  quel veicolo viene **tolto dal registro** (resta nella vendita per lo storico).
+- La provvigione del **finanziamento** conta per il **mese successivo** alla vendita.
+- Nel dettaglio di ogni commerciale c'è il **report mensile** con il totale netto/lordo
+  da pagare mese per mese (incluso il finanziamento che arriva dal mese precedente).
+
+Nelle **Trattative** si può indicare il **commerciale** che segue la trattativa.
 
 La **lorda** applica le percentuali ai valori IVA inclusa; la **netta** ai valori
 netti (= lorda ÷ 1,22). I margini sono **solo il ricarico** applicato al cliente.
