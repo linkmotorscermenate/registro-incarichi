@@ -214,7 +214,10 @@ tfoot .gross{color:var(--accent)}
 .inc-card .ic-meta{display:flex;gap:12px;margin-top:8px;font-size:.76rem;color:var(--muted)}
 .inc-card .ic-meta b{color:var(--ink);font-variant-numeric:tabular-nums}
 .inc-card .ic-spark{margin-top:10px}
-.chart-wrap{background:var(--surface-2);border:1px solid var(--hairline);border-radius:14px;padding:14px 12px 8px;margin-bottom:16px}
+.chart-wrap{position:relative;background:var(--surface-2);border:1px solid var(--hairline);border-radius:14px;padding:14px 12px 8px;margin-bottom:16px}
+.chart-wrap .ch-hit{cursor:pointer}
+.chart-tip{position:absolute;transform:translate(-50%,-100%);background:var(--ink);color:var(--surface);font-size:.74rem;font-weight:700;padding:4px 9px;border-radius:7px;white-space:nowrap;pointer-events:none;z-index:5;box-shadow:0 4px 14px -4px rgba(0,0,0,.5)}
+.chart-tip::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--ink)}
 .chart-legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 2px 8px;font-size:.76rem;color:var(--muted)}
 .chart-legend span{display:inline-flex;align-items:center;gap:6px}
 .chart-legend i{width:14px;height:0;border-top:3px solid currentColor;border-radius:2px}
@@ -1830,14 +1833,27 @@ function incChartSVG(ms){
   for(let i=0;i<=4;i++){ const val=maxV*i/4, yy=padT+plotH*(1-i/4);
     g+=`<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="var(--hairline)" stroke-width="1"/>`;
     g+=`<text x="${padL-6}" y="${(yy+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--faint)">${fmtEur0.format(val)}</text>`; }
+  const tip=(m,label,val)=>esc(`${MESI_LONG[m]}: ${label} ${fmtEur0.format(val)}`);
   const bw=(plotW/12)*0.46; let bars='';
   ms.forEach((mo,m)=>{ if(mo.netta<=0) return; const bx=x(m)-bw/2, by=y(mo.netta), bh=padT+plotH-by;
-    bars+=`<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,bh).toFixed(1)}" rx="2" fill="var(--petrol)" opacity=".22"><title>${MESI[m]}: incassato ${fmtEur0.format(mo.netta)}</title></rect>`; });
-  const line=(key,color)=>{ const pts=ms.map((mo,m)=>`${x(m).toFixed(1)},${y(mo[key]).toFixed(1)}`).join(' ');
-    const dots=ms.map((mo,m)=> mo.count?`<circle cx="${x(m).toFixed(1)}" cy="${y(mo[key]).toFixed(1)}" r="2.6" fill="${color}"><title>${MESI[m]}: ${fmtEur0.format(mo[key])}</title></circle>`:'').join('');
+    bars+=`<rect class="ch-hit" x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0,bh).toFixed(1)}" rx="2" fill="var(--petrol)" opacity=".22" data-tip="${tip(m,'da pagare',mo.netta)} netto"></rect>`; });
+  const line=(key,color,label)=>{ const pts=ms.map((mo,m)=>`${x(m).toFixed(1)},${y(mo[key]).toFixed(1)}`).join(' ');
+    const dots=ms.map((mo,m)=> mo[key]>0?`<circle cx="${x(m).toFixed(1)}" cy="${y(mo[key]).toFixed(1)}" r="2.8" fill="${color}"/><circle class="ch-hit" cx="${x(m).toFixed(1)}" cy="${y(mo[key]).toFixed(1)}" r="10" fill="transparent" data-tip="${tip(m,label,mo[key])}"/>`:'').join('');
     return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}`; };
   const xl=ms.map((mo,m)=>`<text x="${x(m).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="9" fill="var(--faint)">${MESI[m]}</text>`).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet" role="img" style="display:block">${g}${bars}${line('lorda','var(--accent)')}${line('netta','var(--petrol)')}${xl}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet" role="img" style="display:block">${g}${bars}${line('lorda','var(--accent)','lorda')}${line('netta','var(--petrol)','netta')}${xl}</svg>`;
+}
+function attachChartTips(){
+  const wrap=$('ibody') && $('ibody').querySelector('.chart-wrap'); if(!wrap) return;
+  const svg=wrap.querySelector('svg'); if(!svg) return;
+  let tip=wrap.querySelector('.chart-tip'); if(!tip){ tip=document.createElement('div'); tip.className='chart-tip'; tip.hidden=true; wrap.appendChild(tip); }
+  const place=(el,cx,cy)=>{ const t=el.getAttribute('data-tip'); if(!t){ tip.hidden=true; return; } tip.textContent=t; tip.hidden=false;
+    const r=wrap.getBoundingClientRect(); let x=cx-r.left, y=cy-r.top; const half=tip.offsetWidth/2+6;
+    x=Math.min(Math.max(x,half), r.width-half); tip.style.left=x+'px'; tip.style.top=Math.max(2,y-14)+'px'; };
+  const onMove=e=>{ const el=e.target.closest('[data-tip]'); if(el) place(el,e.clientX,e.clientY); else tip.hidden=true; };
+  svg.addEventListener('pointermove',onMove);
+  svg.addEventListener('pointerdown',onMove);
+  svg.addEventListener('pointerleave',()=>{ tip.hidden=true; });
 }
 function renderInc(){
   const ys=incYears(); const sel=$('incYear'); sel.innerHTML=ys.map(y=>`<option value="${y}">${y}</option>`).join(''); sel.value=incState.year;
@@ -1898,6 +1914,7 @@ function openIncDetail(name){
     </div>
     <div class="inc-sub">Report mensile · da pagare</div>
     ${report}`;
+  attachChartTips();
   $('scrim').hidden=false; $('isheet').classList.add('open'); $('isheet').setAttribute('aria-hidden','false');
 }
 function closeIncDetail(){ $('isheet').classList.remove('open'); $('isheet').setAttribute('aria-hidden','true'); if($('vsheet').getAttribute('aria-hidden')!=='false') $('scrim').hidden=true; incSelName=null; }
