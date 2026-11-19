@@ -75,6 +75,12 @@ link di accesso via email non ti riporta al sito:
 
 ---
 
+## Statistiche parco (Registro)
+Nel Registro, il pulsante **Statistiche** apre una scheda con le percentuali del parco:
+fasce di prezzo, **carrozzeria** (SUV / berline / station wagon / …) e **alimentazione**
+(diesel / benzina / ibrido / …). I dati vengono dai campi *Carrozzeria* e *Alimentazione*
+di ogni veicolo, raggruppati in categorie.
+
 ## Pagine Trattative e Gestione annunci
 Il sito ha tre schede in alto: **Registro**, **Trattative**, **Gestione annunci**.
 Per attivare le due nuove pagine, esegui **una volta** `schema-trattative-annunci.sql`

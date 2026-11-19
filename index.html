@@ -241,6 +241,13 @@ tfoot .gross{color:var(--accent)}
 .mrep-head .mh-g{color:var(--faint);font-weight:600;font-size:.76rem}
 .mrep-brk{font-size:.73rem;color:var(--muted);margin:0 2px 8px}
 .fin-tag{font-size:.6rem;background:var(--warn-soft);color:var(--warn);padding:1px 5px;border-radius:5px;font-weight:700;white-space:nowrap;vertical-align:middle}
+.stat-sum{font-size:.84rem;color:var(--muted);margin:0 2px 14px;font-weight:600}
+.stat-row{display:flex;align-items:center;gap:10px;padding:5px 2px}
+.stat-lab{flex:0 0 38%;max-width:38%;font-size:.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-bar{flex:1;height:10px;background:var(--surface-3);border-radius:999px;overflow:hidden;min-width:0}
+.stat-bar i{display:block;height:100%;background:var(--petrol);border-radius:999px}
+.stat-val{flex:0 0 auto;font-size:.8rem;font-weight:800;font-variant-numeric:tabular-nums;min-width:66px;text-align:right}
+.stat-val small{color:var(--faint);font-weight:600}
 .sheet-head{padding:18px 20px;padding-top:max(18px,env(safe-area-inset-top,0px));border-bottom:1px solid var(--hairline);display:flex;align-items:center;gap:12px}
 .sheet-head h2{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;flex:1}
 .sheet-body{overflow-y:auto;padding:18px 20px;flex:1;padding-right:max(20px,env(safe-area-inset-right,0px))}
@@ -467,6 +474,10 @@ tfoot .ant{color:var(--accent)}
       <span class="brand-sp"></span>
       <button class="ghost" id="themeBtn" title="Cambia tema" aria-label="Cambia tema">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+      </button>
+      <button class="ghost" id="statsBtn" title="Statistiche parco">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg>
+        <span>Statistiche</span>
       </button>
       <button class="ghost" id="exportBtn" title="Esporta CSV">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
@@ -891,6 +902,20 @@ tfoot .ant{color:var(--accent)}
   </div>
 </aside>
 
+<!-- Statistiche parco veicoli -->
+<aside class="sheet" id="statsheet" aria-hidden="true" aria-label="Statistiche parco">
+  <div class="sheet-head">
+    <h2>Statistiche parco</h2>
+    <button class="icon-btn" id="stCloseSheet" aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body" id="statsBody"></div>
+  <div class="sheet-foot">
+    <button type="button" class="btn-primary" id="stCloseBtn" style="justify-content:center">Chiudi</button>
+  </div>
+</aside>
+
 <div class="pop" id="pop" hidden></div>
 <div class="toast" id="toast"></div>
 </div><!-- /app -->
@@ -1169,7 +1194,7 @@ function setView(v){
   ['registro','trattative','annunci','chiamate','incassi'].forEach(x=>{ const el=$('view-'+x); if(el) el.hidden = (x!==v); });
   [...$('viewnav').children].forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===v)));
   const reg=(v==='registro');
-  $('kpiRow').hidden=!reg; $('addBtn').hidden=!reg; $('exportBtn').hidden=!reg;
+  $('kpiRow').hidden=!reg; $('addBtn').hidden=!reg; $('exportBtn').hidden=!reg; $('statsBtn').hidden=!reg;
   hidePop();
   if(v==='trattative') renderTrat();
   if(v==='annunci') renderAnn();
@@ -1990,8 +2015,55 @@ $('incYear').addEventListener('change',e=>{ incState.year=parseInt(e.target.valu
 $('incCards').addEventListener('click',e=>{ const c=e.target.closest('.inc-card'); if(c) openIncDetail(c.dataset.name); });
 $('ibody').addEventListener('click',e=>{ const ed=e.target.closest('[data-vedit]'), dl=e.target.closest('[data-vdel]');
   if(ed){ const v=vendite.find(x=>x.id===ed.dataset.vedit); if(v) openVen(v); } else if(dl){ delVen(dl.dataset.vdel); } });
-$('scrim').onclick=()=>{ closeSheet(); closeTrat(); closeLead(); closeVen(); closeIncDetail(); $('scrim').hidden=true; };
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeVen(); closeIncDetail(); } });
+$('scrim').onclick=()=>{ closeSheet(); closeTrat(); closeLead(); closeVen(); closeIncDetail(); closeStats(); $('scrim').hidden=true; };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeVen(); closeIncDetail(); closeStats(); } });
+
+/* ========== Statistiche parco veicoli ========== */
+function normCarr(v){ const s=String(v.carr||'').toLowerCase().trim(); if(!s) return 'Non specificato';
+  if(/moto/.test(s)) return 'Moto';
+  if(/suv|fuoristrada|crossover/.test(s)) return 'SUV';
+  if(/station|\bsw\b|familiare|wagon|avant|touring|estate/.test(s)) return 'Station Wagon';
+  if(/cabrio|coup|spider|spyder|roadster/.test(s)) return 'Cabrio/Coupé';
+  if(/monovolume|van|transporter|furgone|multispazio/.test(s)) return 'Monovolume/Van';
+  if(/porte|berlin|utilitaria|sedan|hatch|city/.test(s)) return 'Berlina/Utilitaria';
+  return 'Altro';
+}
+function normAlim(v){ const s=String(v.alim||'').toLowerCase().trim(); if(!s) return 'Non specificato';
+  if(/ibrid|hybrid|mild|hev|phev|elettric[ao]?\s*\/|\/\s*(benzina|diesel)/.test(s)) return 'Ibrido';
+  if(/elettric|full electric|\bev\b/.test(s)) return 'Elettrica';
+  if(/diesel|gasolio/.test(s)) return 'Diesel';
+  if(/gpl/.test(s)) return 'GPL';
+  if(/metano|cng/.test(s)) return 'Metano';
+  if(/benzina|gpl|petrol|verde/.test(s)) return 'Benzina';
+  return 'Altro';
+}
+function statDist(list,keyFn){ const m={}; let tot=0; for(const v of list){ const k=keyFn(v); if(k==null) continue; m[k]=(m[k]||0)+1; tot++; }
+  const rows=Object.keys(m).map(k=>({label:k,count:m[k],pct:tot?Math.round(m[k]/tot*100):0})).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'it'));
+  return {rows,tot};
+}
+function distBars(rows,tot){ if(!tot||!rows.length) return '<p class="inc-hint" style="margin:2px">Nessun dato.</p>';
+  return rows.map(r=>`<div class="stat-row"><span class="stat-lab" title="${esc(r.label)}">${esc(r.label)}</span><span class="stat-bar"><i style="width:${r.pct}%"></i></span><span class="stat-val">${r.pct}% <small>(${r.count})</small></span></div>`).join('');
+}
+function renderStats(){
+  const list=items.slice();
+  const n=list.length, nAuto=list.filter(v=>String(v.tipo||'Auto')!=='Moto').length, nMoto=n-nAuto;
+  // fasce di prezzo (ordine fisso) + senza prezzo
+  const fc={}; FASCE.forEach(f=>fc[f.l]=0); let senza=0;
+  for(const v of list){ const f=fasciaOf(v); if(f) fc[f.l]++; else senza++; }
+  const frows=FASCE.filter(f=>fc[f.l]>0).map(f=>({label:f.l+' €',count:fc[f.l],pct:n?Math.round(fc[f.l]/n*100):0}));
+  if(senza>0) frows.push({label:'Senza prezzo',count:senza,pct:n?Math.round(senza/n*100):0});
+  const carr=statDist(list,normCarr), alim=statDist(list,normAlim);
+  $('statsBody').innerHTML = n===0
+    ? `<p class="inc-hint">Nessun veicolo in registro.</p>`
+    : `<p class="stat-sum">${n} veicoli in registro · ${nAuto} auto · ${nMoto} moto</p>
+       <div class="inc-sub">Fasce di prezzo</div>${distBars(frows,n)}
+       <div class="inc-sub" style="margin-top:16px">Carrozzeria</div>${distBars(carr.rows,carr.tot)}
+       <div class="inc-sub" style="margin-top:16px">Alimentazione</div>${distBars(alim.rows,alim.tot)}`;
+}
+function openStats(){ renderStats(); $('scrim').hidden=false; $('statsheet').classList.add('open'); $('statsheet').setAttribute('aria-hidden','false'); }
+function closeStats(){ $('statsheet').classList.remove('open'); $('statsheet').setAttribute('aria-hidden','true'); if($('scrim')) $('scrim').hidden=true; }
+$('statsBtn').onclick=openStats;
+$('stCloseSheet').onclick=closeStats; $('stCloseBtn').onclick=closeStats;
 
 function subscribeRealtime(){
   if(!sb) return;
