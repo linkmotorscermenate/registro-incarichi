@@ -644,6 +644,8 @@ tfoot .ant{color:var(--accent)}
       <input class="flt-num" id="lfPmin" inputmode="numeric" placeholder="€ min" aria-label="Prezzo minimo">
       <input class="flt-num" id="lfPmax" inputmode="numeric" placeholder="€ max" aria-label="Prezzo massimo">
       <input class="flt-num" id="lfKmMax" inputmode="numeric" placeholder="km max" aria-label="Km massimi">
+      <input class="flt-num" id="lfAnnoMin" inputmode="numeric" placeholder="anno da" aria-label="Anno immatricolazione da">
+      <input class="flt-num" id="lfAnnoMax" inputmode="numeric" placeholder="anno a" aria-label="Anno immatricolazione a">
       <button class="btn-primary" id="lfApply" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
         <span>Filtra</span>
@@ -1447,7 +1449,7 @@ document.body.addEventListener('click',e=>{
 
 /* ========== Chiamate / Lead (ricerca auto) ========== */
 let leads=[], rtLead=null, editLeadId=null, pendingLDel=null;
-let lState={q:'',chi:'',esito:'',sub:'elenco',period:'giorno',marca:'',modello:'',paese:'',raggio:0,pmin:0,pmax:0,kmmax:0,_centro:null,_paeseNF:false};
+let lState={q:'',chi:'',esito:'',sub:'elenco',period:'giorno',marca:'',modello:'',paese:'',raggio:0,pmin:0,pmax:0,kmmax:0,annomin:0,annomax:0,_centro:null,_paeseNF:false};
 let COMUNI_COORD=null;
 function normComune(s){ return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
 function haversineKm(la1,lo1,la2,lo2){ const R=6371,toR=Math.PI/180; const dLa=(la2-la1)*toR,dLo=(lo2-lo1)*toR;
@@ -1493,6 +1495,8 @@ function lFiltered(){
   if(lState.pmin) r=r.filter(l=>toNum(l.prezzo)>=lState.pmin);
   if(lState.pmax) r=r.filter(l=>toNum(l.prezzo)>0 && toNum(l.prezzo)<=lState.pmax);
   if(lState.kmmax) r=r.filter(l=>toNum(l.km)>0 && toNum(l.km)<=lState.kmmax);
+  if(lState.annomin) r=r.filter(l=>toNum(l.anno)>0 && toNum(l.anno)>=lState.annomin);
+  if(lState.annomax) r=r.filter(l=>toNum(l.anno)>0 && toNum(l.anno)<=lState.annomax);
   if(lState.q){ const q=lState.q.toLowerCase(); r=r.filter(l=>[l.marca,l.modello,l.versione,l.comune,l.prov,l.telefono].some(x=>String(x||'').toLowerCase().includes(q))); }
   r.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
   return r;
@@ -1526,7 +1530,7 @@ function renderLeads(){
     if(COMUNI_COORD){ const c=COMUNI_COORD[normComune(lState.paese)]; if(c) lState._centro=c; else lState._paeseNF=true; }
   }
   const rows=lFiltered();
-  const anyF=lState.q||lState.chi||lState.esito||lState.marca||lState.modello||lState.paese||lState.pmin||lState.pmax||lState.kmmax;
+  const anyF=lState.q||lState.chi||lState.esito||lState.marca||lState.modello||lState.paese||lState.pmin||lState.pmax||lState.kmmax||lState.annomin||lState.annomax;
   let lbl = anyF ? `${rows.length} di ${leads.length}` : (leads.length?`${leads.length} annunci`:'');
   if(lState._centro) lbl+=` · entro ${lState.raggio} km da ${lState.paese}`;
   else if(lState._paeseNF) lbl+=` · paese non trovato`;
@@ -1771,12 +1775,14 @@ function applyLeadFilters(){
   lState.pmin=toNum($('lfPmin').value);
   lState.pmax=toNum($('lfPmax').value);
   lState.kmmax=toNum($('lfKmMax').value);
+  lState.annomin=toNum($('lfAnnoMin').value);
+  lState.annomax=toNum($('lfAnnoMax').value);
   renderLeads();
 }
 $('lfApply').addEventListener('click',applyLeadFilters);
 $('lfRaggio').addEventListener('change',applyLeadFilters);
-['lfPaese','lfPmin','lfPmax','lfKmMax'].forEach(id=>$(id).addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); applyLeadFilters(); } }));
-$('lfReset').addEventListener('click',()=>{ lState.marca=lState.modello=lState.paese=''; lState.raggio=lState.pmin=lState.pmax=lState.kmmax=0; $('lfPmin').value=''; $('lfPmax').value=''; $('lfKmMax').value=''; $('lfPaese').value=''; $('lfRaggio').value='0'; renderLeads(); });
+['lfPaese','lfPmin','lfPmax','lfKmMax','lfAnnoMin','lfAnnoMax'].forEach(id=>$(id).addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); applyLeadFilters(); } }));
+$('lfReset').addEventListener('click',()=>{ lState.marca=lState.modello=lState.paese=''; lState.raggio=lState.pmin=lState.pmax=lState.kmmax=lState.annomin=lState.annomax=0; $('lfPmin').value=''; $('lfPmax').value=''; $('lfKmMax').value=''; $('lfAnnoMin').value=''; $('lfAnnoMax').value=''; $('lfPaese').value=''; $('lfRaggio').value='0'; renderLeads(); });
 loadComuniCoord();
 $('lImportBtn').onclick=()=>$('lFile').click();
 $('lFile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) importLeadsCsv(f); e.target.value=''; });
